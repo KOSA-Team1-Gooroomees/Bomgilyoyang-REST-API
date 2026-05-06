@@ -29,14 +29,16 @@ public class FacilityService {
 
     private final String API_URL = "https://api.vworld.kr/req/data";
 
-    @Scheduled(cron = "0 0 4 * * *") // 매일 새벽 4시 실행
-    @Transactional
+    @Scheduled(cron = "0 0 4 * * *")
     public void refreshFacilities() {
         int page = 1;
         int size = 100;
+        int totalPages = 1;
 
-        while (true) {
-            try {
+        log.info("VWorld 노인복지시설 데이터 갱신 시작...");
+
+        try {
+            while (page <= totalPages) {
                 String url = UriComponentsBuilder.fromUri(URI.create(API_URL))
                         .queryParam("service", "data")
                         .queryParam("request", "GetFeature")
@@ -49,35 +51,44 @@ public class FacilityService {
                         .toUriString();
 
                 Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-
                 Map<String, Object> resBody = (Map<String, Object>) response.get("response");
-                if ("ERROR".equals(resBody.get("status"))) {
-                    log.info("모든 데이터를 수집했거나 오류 발생: {}", resBody.get("error"));
-                    break;
+
+                if (page == 1) {
+                    Map<String, Object> pageInfo = (Map<String, Object>) resBody.get("page");
+                    if (pageInfo != null) {
+                        totalPages = Integer.parseInt(pageInfo.get("total").toString());
+                        log.info("총 수집 대상 페이지: {} (전체 데이터: {}건)", totalPages, ((Map) resBody.get("record")).get("total"));
+                    }
                 }
 
                 Map<String, Object> result = (Map<String, Object>) resBody.get("result");
-                Map<String, Object> featureCollection = (Map<String, Object>) result.get("featureCollection");
-                List<Map<String, Object>> features = (List<Map<String, Object>>) featureCollection.get("features");
+                if (result != null) {
+                    Map<String, Object> featureCollection = (Map<String, Object>) result.get("featureCollection");
+                    List<Map<String, Object>> features = (List<Map<String, Object>>) featureCollection.get("features");
 
-                if (features == null || features.isEmpty()) break;
+                    if (features != null && !features.isEmpty()) {
+                        savePageData(features);
+                        log.info("진행: {}/{} 페이지 완료 ({}건)", page, totalPages, features.size());
+                    }
+                }
 
-                List<Facility> facilityList = features.stream()
-                        .map(this::mapToEntity)
-                        .collect(Collectors.toList());
-
-                facilityRepository.saveAll(facilityList);
-
-                log.info("VWorld 데이터 페이지 {} 완료 ({}건)", page, facilityList.size());
                 page++;
-
                 Thread.sleep(200);
-
-            } catch (Exception e) {
-                log.error("데이터 갱신 중 예외 발생: ", e);
-                break;
             }
+
+        } catch (Exception e) {
+            log.error("수집 중 오류 발생 (Page: {}): ", page, e);
         }
+
+        log.info("모든 데이터 갱신이 완료되었습니다.");
+    }
+
+    @Transactional
+    public void savePageData(List<Map<String, Object>> features) {
+        List<Facility> facilityList = features.stream()
+                .map(this::mapToEntity)
+                .collect(Collectors.toList());
+        facilityRepository.saveAll(facilityList);
     }
 
     private Facility mapToEntity(Map<String, Object> feature) {
