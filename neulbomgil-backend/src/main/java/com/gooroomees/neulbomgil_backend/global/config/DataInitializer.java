@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
+import com.gooroomees.neulbomgil_backend.domain.map.service.FacilityService;
 import com.gooroomees.neulbomgil_backend.domain.map.service.ParkDataInitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements ApplicationRunner {
 
     private final ParkDataInitService parkDataInitService;
-
+    private final FacilityService facilityService;
+    
     @Override
     public void run(ApplicationArguments args) {
         parkDataInitService.initParkData();
+        facilityService.refreshFacilities();
     }
 }
