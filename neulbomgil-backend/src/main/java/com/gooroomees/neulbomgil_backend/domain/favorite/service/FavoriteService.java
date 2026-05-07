@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.favorite.service;
 
+import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteDeleteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
@@ -66,7 +67,7 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteFavorite(FavoriteRequest request) {
-        favoriteRepository.deleteByUserIdAndFacilityId(request.getUserId(), request.getFacilityId());
+    public void deleteFavorite(int userId, FavoriteDeleteRequest request) {
+        favoriteRepository.deleteByUserIdAndFacilityId(userId, request.getFacilityId());
     }
 }

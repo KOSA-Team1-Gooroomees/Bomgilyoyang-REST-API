@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FavoriteSearchRequest {
-
     @Min(0)
     private Double radius = 5000.0;
 
