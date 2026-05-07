@@ -54,7 +54,6 @@ public class MapService {
     public List<Park> getNearbyParks(NearbyParkRequest request) {
         Facility facility = getFacilityDetail(request.getFacilityId());
 
-        // m 단위를 km 단위로 변환
         Double radiusInKm = request.getRadius() / 1000.0;
 
         return parkRepository.findNearbyParks(
