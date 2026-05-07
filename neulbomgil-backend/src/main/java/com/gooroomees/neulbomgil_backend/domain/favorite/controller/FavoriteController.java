@@ -22,8 +22,9 @@ public class FavoriteController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavorites(@PathVariable int userId) {
-        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId));
+    public ResponseEntity<List<FavoriteResponse>> getFavorites(@PathVariable int userId,
+                                                               @RequestParam(defaultValue = "5000.0") double radius) {
+        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId, radius));
     }
 
     @DeleteMapping
