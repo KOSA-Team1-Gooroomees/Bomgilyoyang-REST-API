@@ -27,6 +27,8 @@ public class ParkDataInitService {
     @Transactional
     public void initParkData() {
         try {
+            parkRepository.deleteAllInBatch();
+
             Resource resource = resourceLoader.getResource("classpath:data/parks.json");
             InputStream inputStream = resource.getInputStream();
 
