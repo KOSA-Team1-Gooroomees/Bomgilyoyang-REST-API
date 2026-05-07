@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatResponseDto {
 
-    private Long chatId;
+    private Integer chatId;
 
-    private Long roomId;
+    private Integer roomId;
 
-    private Long senderId;
+    private Integer senderId;
 
     private String message;
 

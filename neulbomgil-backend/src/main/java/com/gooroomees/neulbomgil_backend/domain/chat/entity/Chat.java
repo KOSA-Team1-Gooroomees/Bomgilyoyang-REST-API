@@ -15,16 +15,14 @@ public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_id")
-    private Long chatId;
+    private Integer chatId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private ChatRoom chatRoom;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "sender_id", nullable = false)
-@Column(name = "sender_id", nullable = false)
-    private int sender; //user
+    @Column(name = "sender_id", nullable = false)
+    private Integer sendeIdr;
 
 
     @Column(name = "message", columnDefinition = "TEXT")
@@ -37,13 +35,13 @@ public class Chat {
     private LocalDateTime readAt;
 
     public static Chat create(ChatRoom chatRoom,
-                              int sender,
+                              Integer sendeIdr,
                               String message) {
 
         Chat chat = new Chat();
 
         chat.chatRoom = chatRoom;
-        chat.sender = sender;
+        chat.sendeIdr = sendeIdr;
         chat.message = message;
         chat.createdAt = LocalDateTime.now();
 
