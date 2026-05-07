@@ -4,6 +4,8 @@ import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteReq
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.entity.Favorite;
 import com.gooroomees.neulbomgil_backend.domain.favorite.repository.FavoriteRepository;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
+import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.service.MapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,18 +38,19 @@ public class FavoriteService {
 
     private final MapService mapService;
 
-    public List<FavoriteResponse> getUserFavoritesWithDetail(int userId) {
+    public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, double radius) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
 
         return favorites.stream().map(favorite -> {
             try {
                 var facilityDetail = mapService.getFacilityDetail(favorite.getFacilityId());
-
+                List<Park> parks = mapService.getNearbyParks(new NearbyParkRequest(favorite.getFacilityId(), radius));
                 return FavoriteResponse.builder()
                         .id(favorite.getId())
                         .userId(favorite.getUserId())
                         .facilityId(favorite.getFacilityId())
                         .facility(facilityDetail)
+                        .parks(parks)
                         .build();
             } catch (IllegalArgumentException e) {
                 return FavoriteResponse.builder()
@@ -55,6 +58,7 @@ public class FavoriteService {
                         .userId(favorite.getUserId())
                         .facilityId(favorite.getFacilityId())
                         .facility(null)
+                        .parks(null)
                         .build();
             }
         }).collect(Collectors.toList());
