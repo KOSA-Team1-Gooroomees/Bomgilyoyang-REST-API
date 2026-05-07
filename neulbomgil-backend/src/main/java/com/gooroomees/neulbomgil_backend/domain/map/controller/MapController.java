@@ -42,8 +42,7 @@ public class MapController {
     @GetMapping("/facilities/markers/{facilityId}/nearby-parks")
     public ResponseEntity<List<Park>> getNearbyParks(
             @PathVariable String facilityId,
-            @RequestParam(defaultValue = "1000") Double radius) {
-
+            @RequestParam(defaultValue = "3") Double radius) {
         NearbyParkRequest request = new NearbyParkRequest(facilityId, radius);
         return ResponseEntity.ok(mapService.getNearbyParks(request));
     }
