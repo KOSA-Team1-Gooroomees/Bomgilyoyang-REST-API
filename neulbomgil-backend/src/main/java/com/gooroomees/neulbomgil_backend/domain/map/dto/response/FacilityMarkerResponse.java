@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.map.dto;
+package com.gooroomees.neulbomgil_backend.domain.map.dto.response;
 
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
 import lombok.AccessLevel;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FacilityMarkerDTO {
+public class FacilityMarkerResponse {
 
     private String id;
     private String facilityName;
@@ -17,7 +17,7 @@ public class FacilityMarkerDTO {
     private Double latitude;
 
     @Builder
-    public FacilityMarkerDTO(String id, String facilityName, String newAddress, Double longitude, Double latitude) {
+    public FacilityMarkerResponse(String id, String facilityName, String newAddress, Double longitude, Double latitude) {
         this.id = id;
         this.facilityName = facilityName;
         this.newAddress = newAddress;
@@ -25,8 +25,8 @@ public class FacilityMarkerDTO {
         this.latitude = latitude;
     }
 
-    public static FacilityMarkerDTO from(Facility facility) {
-        return FacilityMarkerDTO.builder()
+    public static FacilityMarkerResponse from(Facility facility) {
+        return FacilityMarkerResponse.builder()
                 .id(facility.getId())
                 .facilityName(facility.getFacilityName())
                 .newAddress(facility.getNewAddress())
