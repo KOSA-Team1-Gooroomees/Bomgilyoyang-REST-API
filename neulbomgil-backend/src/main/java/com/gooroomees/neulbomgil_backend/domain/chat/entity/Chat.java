@@ -22,7 +22,7 @@ public class Chat {
     private ChatRoom chatRoom;
 
     @Column(name = "sender_id", nullable = false)
-    private Integer sendeIdr;
+    private Integer senderId;
 
 
     @Column(name = "message", columnDefinition = "TEXT")
@@ -35,13 +35,13 @@ public class Chat {
     private LocalDateTime readAt;
 
     public static Chat create(ChatRoom chatRoom,
-                              Integer sendeIdr,
+                              Integer senderId,
                               String message) {
 
         Chat chat = new Chat();
 
         chat.chatRoom = chatRoom;
-        chat.sendeIdr = sendeIdr;
+        chat.senderId = senderId;
         chat.message = message;
         chat.createdAt = LocalDateTime.now();
 
