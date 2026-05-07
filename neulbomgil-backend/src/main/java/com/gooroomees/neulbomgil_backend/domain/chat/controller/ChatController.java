@@ -24,4 +24,9 @@ public class ChatController {
     public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Integer roomId){
 return chatService.getMessageByRoomId(roomId);
     }
+
+    @GetMapping("/admin")
+    public List<ChatRoomResponseDto> getAllChatRooms(){
+        return chatService.getAllChatRooms();
+    }
 }

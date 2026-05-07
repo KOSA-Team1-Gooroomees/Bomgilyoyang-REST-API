@@ -48,21 +48,41 @@ public class ChatService {
     public List<ChatResponseDto> getMessageByRoomId(Integer roomId) {
         List<Chat> chats = chatRepository.FindMessagesByRoomId(roomId);
         List<ChatResponseDto> chatResponseDtoList = new ArrayList<>();
-        ;
+
         for (Chat chat : chats) {
 
             chatResponseDtoList.add(
-                    new ChatResponseDto(
-                            chat.getChatId(),
-                            chat.getChatRoom().getRoomId(),
-                            chat.getSenderId(),
-                            chat.getMessage(),
-                            chat.getCreatedAt(),
-                            chat.getReadAt()
-                    )
+                    ChatResponseDto.builder()
+                            .chatId(chat.getChatId())
+                            .roomId(chat.getChatRoom().getRoomId())
+                            .senderId(chat.getSenderId())
+                            .message(chat.getMessage())
+                            .createdAt(chat.getCreatedAt())
+                            .readAt(chat.getReadAt())
+                            .build()
             );
         }
 
         return chatResponseDtoList;
     }
+
+    public List<ChatRoomResponseDto> getAllChatRooms() {
+        List<ChatRoom> rooms =
+                chatRoomRepository.findAllByOrderByLastMessageAtDesc();
+
+        List<ChatRoomResponseDto> chatRoomResponseDto = new ArrayList<>();
+
+        for (ChatRoom room : rooms) {
+            chatRoomResponseDto.add(
+            ChatRoomResponseDto.builder()
+                    .roomId(room.getRoomId())
+                    .userId(room.getUser().getUserId())
+                    .lastMessageAt(room.getLastMessageAt())
+                    .build()
+                  );
+        }
+
+        return chatRoomResponseDto;
+    }
+
 }
