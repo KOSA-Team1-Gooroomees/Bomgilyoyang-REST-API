@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.map.dto;
+package com.gooroomees.neulbomgil_backend.domain.map.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,5 +12,5 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PublicDataResponse {
     @JsonProperty("records")
-    private List<ParkJsonDto> records;
+    private List<ParkResponse> records;
 }

@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.map.dto;
+package com.gooroomees.neulbomgil_backend.domain.map.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ParkJsonDto {
+public class ParkResponse {
 
     @JsonProperty("공원명")
     private String name;

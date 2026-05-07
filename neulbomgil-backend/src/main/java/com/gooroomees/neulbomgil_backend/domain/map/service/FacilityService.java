@@ -14,7 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -85,16 +85,30 @@ public class FacilityService {
 
     @Transactional
     public void savePageData(List<Map<String, Object>> features) {
-        List<Facility> facilityList = features.stream()
-                .map(this::mapToEntity)
-                .collect(Collectors.toList());
-        facilityRepository.saveAll(facilityList);
+        for (Map<String, Object> feature : features) {
+            String id = (String) feature.get("id");
+
+            // 1. 기존 데이터가 있는지 DB에서 조회
+            Optional<Facility> existingFacility = facilityRepository.findById(id);
+
+            // 2. 엔터티 매핑 (기존 데이터 존재 여부 전달)
+            Facility facility = mapToEntity(feature, existingFacility);
+
+            facilityRepository.save(facility);
+        }
     }
 
-    private Facility mapToEntity(Map<String, Object> feature) {
+    private Facility mapToEntity(Map<String, Object> feature, Optional<Facility> existing) {
         Map<String, Object> properties = (Map<String, Object>) feature.get("properties");
         Map<String, Object> geometry = (Map<String, Object>) feature.get("geometry");
         List<Double> coords = (List<Double>) geometry.get("coordinates");
+
+        // 기존 데이터가 있으면 기존 값을 쓰고, 없으면 요청하신 기본값(40, 0, "facility.png") 사용
+        Integer capacity = existing.map(Facility::getCapacityCnt).orElse(40);
+        Integer current = existing.map(Facility::getCurrentCnt).orElse(0);
+        String image = existing.map(Facility::getFacilityImage).orElse("facility.png");
+
+        Integer score = calculateFacilityScore(feature);
 
         return Facility.builder()
                 .id((String) feature.get("id"))
@@ -105,6 +119,14 @@ public class FacilityService {
                 .newAddress((String) properties.get("fac_n_add"))
                 .longitude(coords.get(0))
                 .latitude(coords.get(1))
+                .capacityCnt(capacity)
+                .currentCnt(current)
+                .facilityImage(image)
+                .facilityScore(score)
                 .build();
+    }
+
+    private Integer calculateFacilityScore(Map<String, Object> feature) {
+        return 1;
     }
 }
