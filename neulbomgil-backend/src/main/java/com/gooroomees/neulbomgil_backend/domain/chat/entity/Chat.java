@@ -39,7 +39,6 @@ public class Chat {
                               String message) {
 
         Chat chat = new Chat();
-
         chat.chatRoom = chatRoom;
         chat.senderId = senderId;
         chat.message = message;

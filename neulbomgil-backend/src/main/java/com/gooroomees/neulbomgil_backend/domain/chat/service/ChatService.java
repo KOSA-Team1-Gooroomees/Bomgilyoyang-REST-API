@@ -3,6 +3,7 @@ package com.gooroomees.neulbomgil_backend.domain.chat.service;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.Role;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserChatRepository;
+import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.entity.Chat;
@@ -85,4 +86,26 @@ public class ChatService {
         return chatRoomResponseDto;
     }
 
+    public ChatResponseDto saveMessage(Integer roomId, ChatRequestDto requestDto) {
+
+        ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("채팅방이 없습니다."));;
+
+        Chat chat = Chat.create(
+                room,
+                requestDto.getSenderId(),
+                requestDto.getMessage()
+        );
+
+        Chat savedChat = chatRepository.save(chat);
+
+
+        return ChatResponseDto.builder()
+                .chatId(savedChat.getChatId())
+                .roomId(roomId)
+                .senderId(savedChat.getSenderId())
+                .message(savedChat.getMessage())
+                .createdAt(savedChat.getCreatedAt())
+                .readAt(savedChat.getReadAt())
+                .build();
+    }
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatRequestDto {
 
-    private Integer roomId;
+
 
     private Integer senderId;
 

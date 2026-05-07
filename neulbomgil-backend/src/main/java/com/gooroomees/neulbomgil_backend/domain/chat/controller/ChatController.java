@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.service.ChatService;
@@ -29,4 +30,10 @@ return chatService.getMessageByRoomId(roomId);
     public List<ChatRoomResponseDto> getAllChatRooms(){
         return chatService.getAllChatRooms();
     }
+
+    @PostMapping("/{roomId}/message")
+    public ChatResponseDto sendMessage(@PathVariable Integer roomId,@RequestBody ChatRequestDto requestDto) {
+        return chatService.saveMessage(roomId, requestDto);
+    }
+
 }

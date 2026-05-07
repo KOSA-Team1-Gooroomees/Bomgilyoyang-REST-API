@@ -13,7 +13,7 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
             select c
             from Chat c
             where c.chatRoom.roomId = :roomId
-            order by c.createdAt asc
+            order by c.createdAt desc
             """)
     List<Chat> FindMessagesByRoomId(@Param("roomId") Integer roomId);
  }
