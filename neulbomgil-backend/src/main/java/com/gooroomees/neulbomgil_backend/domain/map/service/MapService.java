@@ -54,12 +54,10 @@ public class MapService {
     public List<Park> getNearbyParks(NearbyParkRequest request) {
         Facility facility = getFacilityDetail(request.getFacilityId());
 
-        Double radiusInKm = request.getRadius() / 1000.0;
-
         return parkRepository.findNearbyParks(
                 facility.getLatitude(),
                 facility.getLongitude(),
-                radiusInKm
+                request.getRadius()
         );
     }
 }
