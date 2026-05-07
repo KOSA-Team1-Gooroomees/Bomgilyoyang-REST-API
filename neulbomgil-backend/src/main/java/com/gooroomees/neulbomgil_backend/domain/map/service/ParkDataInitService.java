@@ -1,7 +1,7 @@
 package com.gooroomees.neulbomgil_backend.domain.map.service;
 
-import com.gooroomees.neulbomgil_backend.domain.map.dto.ParkJsonDto;
-import com.gooroomees.neulbomgil_backend.domain.map.dto.PublicDataResponse;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.ParkResponse;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.PublicDataResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.repository.ParkRepository;
 import jakarta.transaction.Transactional;
@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -34,10 +33,10 @@ public class ParkDataInitService {
 
             ObjectMapper mapper = new ObjectMapper();
             PublicDataResponse response = mapper.readValue(inputStream, PublicDataResponse.class);
-            List<ParkJsonDto> dtos = response.getRecords();
+            List<ParkResponse> dtos = response.getRecords();
 
             List<Park> parks = dtos.stream()
-                    .map(ParkJsonDto::toEntity)
+                    .map(ParkResponse::toEntity)
                     .collect(Collectors.toList());
 
             parkRepository.saveAll(parks);
