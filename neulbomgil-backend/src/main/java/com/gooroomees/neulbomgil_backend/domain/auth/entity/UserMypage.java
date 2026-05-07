@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 public class UserMypage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer userId;
 
     @Column(nullable = false)
     private String name;
