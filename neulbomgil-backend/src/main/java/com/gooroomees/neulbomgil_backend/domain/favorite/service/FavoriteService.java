@@ -1,6 +1,8 @@
 package com.gooroomees.neulbomgil_backend.domain.favorite.service;
 
+import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteDeleteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
+import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.entity.Favorite;
 import com.gooroomees.neulbomgil_backend.domain.favorite.repository.FavoriteRepository;
@@ -22,15 +24,15 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
     @Transactional
-    public Long saveFavorite(FavoriteRequest requestDto) {
-        favoriteRepository.findByUserIdAndFacilityId(requestDto.getUserId(), requestDto.getFacilityId())
+    public Long saveFavorite(FavoriteRequest request) {
+        favoriteRepository.findByUserIdAndFacilityId(request.getUserId(), request.getFacilityId())
                 .ifPresent(f -> {
                     throw new IllegalStateException("이미 즐겨찾기한 시설입니다.");
                 });
 
         Favorite favorite = Favorite.builder()
-                .userId(requestDto.getUserId())
-                .facilityId(requestDto.getFacilityId())
+                .userId(request.getUserId())
+                .facilityId(request.getFacilityId())
                 .build();
 
         return favoriteRepository.save(favorite).getId();
@@ -38,13 +40,13 @@ public class FavoriteService {
 
     private final MapService mapService;
 
-    public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, double radius) {
+    public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, FavoriteSearchRequest request) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
 
         return favorites.stream().map(favorite -> {
             try {
                 var facilityDetail = mapService.getFacilityDetail(favorite.getFacilityId());
-                List<Park> parks = mapService.getNearbyParks(new NearbyParkRequest(favorite.getFacilityId(), radius));
+                List<Park> parks = mapService.getNearbyParks(new NearbyParkRequest(favorite.getFacilityId(), request.getRadius()));
                 return FavoriteResponse.builder()
                         .id(favorite.getId())
                         .userId(favorite.getUserId())
@@ -65,7 +67,7 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteFavorite(int userId, String facilityId) {
-        favoriteRepository.deleteByUserIdAndFacilityId(userId, facilityId);
+    public void deleteFavorite(int userId, FavoriteDeleteRequest request) {
+        favoriteRepository.deleteByUserIdAndFacilityId(userId, request.getFacilityId());
     }
 }
