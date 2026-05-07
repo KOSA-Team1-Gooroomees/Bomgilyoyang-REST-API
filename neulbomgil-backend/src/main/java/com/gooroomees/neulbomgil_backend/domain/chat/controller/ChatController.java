@@ -36,4 +36,9 @@ return chatService.getMessageByRoomId(roomId);
         return chatService.saveMessage(roomId, requestDto);
     }
 
+    @PutMapping("/{roomId}/read")
+    public void readMessages(@PathVariable Integer roomId, @RequestParam Integer userId) {
+        chatService.readMessages(roomId,userId);
+    }
+
 }

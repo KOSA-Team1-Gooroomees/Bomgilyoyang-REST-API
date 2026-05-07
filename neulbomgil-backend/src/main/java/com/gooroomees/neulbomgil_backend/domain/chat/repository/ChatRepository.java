@@ -2,6 +2,7 @@ package com.gooroomees.neulbomgil_backend.domain.chat.repository;
 
 import com.gooroomees.neulbomgil_backend.domain.chat.entity.Chat;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,4 +17,16 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
             order by c.createdAt desc
             """)
     List<Chat> FindMessagesByRoomId(@Param("roomId") Integer roomId);
- }
+
+    @Modifying
+    @Query(
+            """
+update Chat  c
+set c.readAt = CURRENT_TIMESTAMP
+where c.chatRoom.roomId = :roomId
+and c.senderId != :senderId
+and c.readAt is null
+"""
+    )
+    void  updateReadAt(Integer roomId, Integer senderId);
+}

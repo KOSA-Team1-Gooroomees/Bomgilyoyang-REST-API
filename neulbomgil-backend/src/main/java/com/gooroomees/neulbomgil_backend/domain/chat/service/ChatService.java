@@ -12,6 +12,7 @@ import com.gooroomees.neulbomgil_backend.domain.chat.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.gooroomees.neulbomgil_backend.domain.chat.entity.ChatRoom;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,5 +108,9 @@ public class ChatService {
                 .createdAt(savedChat.getCreatedAt())
                 .readAt(savedChat.getReadAt())
                 .build();
+    }
+    @Transactional
+    public void readMessages(Integer roomId,Integer senderId) {
+        chatRepository.updateReadAt(roomId,senderId);
     }
 }
