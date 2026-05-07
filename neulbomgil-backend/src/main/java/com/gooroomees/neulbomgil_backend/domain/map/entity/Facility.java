@@ -23,4 +23,9 @@ public class Facility {
 
     private Double longitude;         // 좌표 X
     private Double latitude;          // 좌표 Y
+
+    private Integer facilityScore; // 시설 점수(1~5)
+    private String facilityImage; // 시설 이미지
+    private Integer capacityCnt; // 수용인원
+    private Integer currentCnt; // 입소현황
 }
