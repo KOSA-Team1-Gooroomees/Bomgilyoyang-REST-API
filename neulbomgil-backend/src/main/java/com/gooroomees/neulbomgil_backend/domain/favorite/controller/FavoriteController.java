@@ -1,8 +1,10 @@
 package com.gooroomees.neulbomgil_backend.domain.favorite.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
+import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.service.FavoriteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +24,15 @@ public class FavoriteController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavorites(@PathVariable int userId,
-                                                               @RequestParam(defaultValue = "5000.0") double radius) {
-        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId, radius));
+    public ResponseEntity<List<FavoriteResponse>> getFavorites(
+            @PathVariable int userId,
+            @Valid @ModelAttribute FavoriteSearchRequest request) {
+        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId, request));
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> removeFavorite(
-            @RequestParam int userId,
-            @RequestParam String facilityId) {
-        favoriteService.deleteFavorite(userId, facilityId);
+    public ResponseEntity<Void> removeFavorite(@RequestParam @RequestBody FavoriteRequest request) {
+        favoriteService.deleteFavorite(request);
         return ResponseEntity.noContent().build();
     }
 }
