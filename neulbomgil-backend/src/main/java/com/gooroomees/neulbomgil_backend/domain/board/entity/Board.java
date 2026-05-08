@@ -1,4 +1,5 @@
 package com.gooroomees.neulbomgil_backend.domain.board.entity;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -13,28 +14,31 @@ import java.time.LocalDateTime;
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int boardid;
-    private String userid;
+    private Long boardid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    private UserAuth userid;
+
     private String title;
     private String content;
     private int cnt;
 
     @CreatedDate
     @Column(updatable = false)
-    private LocalDateTime writedate;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    public static Board create(String userid, String title, String content) {
+    public static Board create(UserAuth userAuth, String title, String content) {
         Board board = new Board();
-        board.userid = userid;
+        board.userid = userAuth;// 쓴 사람 id = 수정 가능
         board.title = title;
         board.content = content;
         board.cnt = 0;
         return board;
     }
-
     public void increaseCnt() {
         this.cnt += 1;
     }
