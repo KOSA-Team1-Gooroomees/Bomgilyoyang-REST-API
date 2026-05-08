@@ -1,7 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.JwtTokenResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginRequest;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.RegisterRequest;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.RefreshToken;
@@ -9,9 +8,8 @@ import com.gooroomees.neulbomgil_backend.domain.auth.entity.Role;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.Status;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
 import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,11 +20,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
     private final RefreshTokenService refreshTokenService;
-    private final UserRepository userRepository;
+    private final UserAuthRepository userAuthRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
+    private final UserAuthService userAuthService;
     private final RefreshTokenRepository refreshTokenRepository;
 
     public String register(RegisterRequest registerRequest) {
