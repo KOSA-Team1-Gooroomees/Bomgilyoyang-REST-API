@@ -33,7 +33,7 @@ public class MapService {
                         request.getRadius()
                 )
                 .stream()
-                .map(FacilityMarkerResponse::from) // Entity -> Marker DTO 변환
+                .map(FacilityMarkerResponse::from)
                 .collect(Collectors.toList());
     }
 

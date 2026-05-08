@@ -19,7 +19,7 @@ public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "room_id")
-    private Integer roomId;
+    private Long roomId;
 
 
 

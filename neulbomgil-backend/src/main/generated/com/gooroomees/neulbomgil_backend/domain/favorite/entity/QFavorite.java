@@ -23,7 +23,7 @@ public class QFavorite extends EntityPathBase<Favorite> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QFavorite(String variable) {
         super(Favorite.class, forVariable(variable));

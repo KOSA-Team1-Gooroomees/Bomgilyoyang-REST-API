@@ -17,28 +17,33 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/start")
-    public ChatRoomResponseDto startChatRoom(@RequestParam Integer userId) {
+    public ChatRoomResponseDto startChatRoom(@RequestParam Long userId) {
         return chatService.startChatRoom(userId);
     }
 
     @GetMapping("/{roomId}/message")
-    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Integer roomId){
-return chatService.getMessageByRoomId(roomId);
+    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId) {
+        return chatService.getMessageByRoomId(roomId);
     }
 
     @GetMapping("/admin")
-    public List<ChatRoomResponseDto> getAllChatRooms(){
+    public List<ChatRoomResponseDto> getAllChatRooms() {
         return chatService.getAllChatRooms();
     }
 
     @PostMapping("/{roomId}/message")
-    public ChatResponseDto sendMessage(@PathVariable Integer roomId,@RequestBody ChatRequestDto requestDto) {
+    public ChatResponseDto sendMessage(@PathVariable Long roomId, @RequestBody ChatRequestDto requestDto) {
         return chatService.saveMessage(roomId, requestDto);
     }
 
     @PutMapping("/{roomId}/read")
-    public void readMessages(@PathVariable Integer roomId, @RequestParam Integer userId) {
-        chatService.readMessages(roomId,userId);
+    public void readMessages(@PathVariable Long roomId, @RequestParam Long userId) {
+        chatService.readMessages(roomId, userId);
+    }
+
+    @GetMapping("/unread")
+    public boolean hasUnreadChats(@RequestParam Long userId) {
+       return chatService.hasUnreadChats(userId);
     }
 
 }

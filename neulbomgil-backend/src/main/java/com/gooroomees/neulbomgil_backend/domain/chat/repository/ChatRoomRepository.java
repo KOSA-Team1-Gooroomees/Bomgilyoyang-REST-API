@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("""
 select cr from ChatRoom cr  where cr.user = :user 
@@ -26,6 +26,6 @@ select cr from ChatRoom cr where cr.roomId = :roomId
 """
 
     )
-    Optional<ChatRoom> findById(Integer roomId);
+    Optional<ChatRoom> findById(Long roomId);
 
 }

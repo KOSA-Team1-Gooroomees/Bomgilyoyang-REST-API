@@ -28,8 +28,16 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                      //  .requestMatchers("/api/auth/**").permitAll()
+                        //websocket연결
+                        .requestMatchers("/ws/**").permitAll()
+                        //  .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
+
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         //.requestMatchers()
                         .anyRequest().authenticated()
                 )

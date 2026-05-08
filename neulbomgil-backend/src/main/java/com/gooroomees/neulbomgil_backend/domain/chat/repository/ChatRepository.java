@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ChatRepository extends JpaRepository<Chat, Integer> {
+public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     @Query("""
             select c
@@ -16,7 +16,7 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
             where c.chatRoom.roomId = :roomId
             order by c.createdAt desc
             """)
-    List<Chat> FindMessagesByRoomId(@Param("roomId") Integer roomId);
+    List<Chat> FindMessagesByRoomId(@Param("roomId") Long roomId);
 
     @Modifying
     @Query(
@@ -24,9 +24,20 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
 update Chat  c
 set c.readAt = CURRENT_TIMESTAMP
 where c.chatRoom.roomId = :roomId
-and c.senderId != :senderId
+and c.sender.userId != :senderId
 and c.readAt is null
 """
     )
-    void  updateReadAt(Integer roomId, Integer senderId);
+    void  updateReadAt(Long roomId, Long senderId);
+
+
+@Query("""
+    select count(c) > 0
+    from Chat c
+    where c.chatRoom.user.userId = :userId
+    and c.sender.userId != :userId
+    and c.readAt is null
+""")
+boolean existsUnreadChatByUserId(@Param("userId") Long userId);
+
 }
