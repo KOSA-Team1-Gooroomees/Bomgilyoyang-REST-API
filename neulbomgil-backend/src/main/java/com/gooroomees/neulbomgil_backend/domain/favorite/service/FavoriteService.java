@@ -39,7 +39,7 @@ public class FavoriteService {
         return favoriteRepository.save(favorite).getId();
     }
 
-    public List<FavoriteResponse> getUserFavoritesWithDetail(Long userId, FavoriteSearchRequest request) {
+    public List<FavoriteResponse> getUserFavoritesWithDetail(Long userId) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
         List<String> facilityIds = favorites.stream()
                 .map(Favorite::getFacilityId)
