@@ -6,15 +6,11 @@ import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSea
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.entity.Favorite;
 import com.gooroomees.neulbomgil_backend.domain.favorite.repository.FavoriteRepository;
-import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
-import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.repository.FacilityRepository;
-import com.gooroomees.neulbomgil_backend.domain.map.service.MapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StopWatch;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +38,6 @@ public class FavoriteService {
 
         return favoriteRepository.save(favorite).getId();
     }
-
-    private final MapService mapService;
 
     public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, FavoriteSearchRequest request) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
