@@ -19,7 +19,7 @@ public class ChatWebSocketController {
     //pub/chatrooms/{roomId}/messages
     @MessageMapping("/chatrooms/{roomId}/messages")
     public void sendMessage(
-            @DestinationVariable Integer roomId,
+            @DestinationVariable Long roomId,
             ChatRequestDto requestDto
     ){
         ChatResponseDto responseDto = chatService.saveMessage(roomId,requestDto);
