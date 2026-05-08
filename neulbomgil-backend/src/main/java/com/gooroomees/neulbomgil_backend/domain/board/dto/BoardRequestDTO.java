@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BoardRequestDTO {
-    private String userid;
     private String title;
     private String content;
 }

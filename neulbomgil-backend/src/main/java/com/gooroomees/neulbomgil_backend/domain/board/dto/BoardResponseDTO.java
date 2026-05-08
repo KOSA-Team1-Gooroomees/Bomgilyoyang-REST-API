@@ -5,19 +5,21 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 @Getter
 public class BoardResponseDTO {
-    private int boardid;
-    private String userid;
+    private Long boardid;
+    private Long userid;
     private String title;
+    private String name;
     private String content;
     private int cnt;
-    private LocalDateTime writedate;
+    private LocalDateTime createdAt;
 
     public BoardResponseDTO(Board board) {
         this.boardid = board.getBoardid();
-        this.userid = board.getUserid();
+        this.userid = board.getUserid().getUserId();   // UserAuth에서 userId 꺼내기
+        this.name = board.getUserid().getName();
         this.title = board.getTitle();
         this.content = board.getContent();
         this.cnt = board.getCnt();
-        this.writedate = board.getWritedate();
+        this.createdAt = board.getCreatedAt();
     }
 }
