@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 
-public interface UserChatRepository  extends JpaRepository<UserAuth, Integer> {
+public interface UserChatRepository  extends JpaRepository<UserAuth, Long> {
 
    // Optional<UserAuth> findFirstByRole(Role role);
 
@@ -19,5 +19,5 @@ public interface UserChatRepository  extends JpaRepository<UserAuth, Integer> {
     from ChatRoom cr
     where cr.user.userId = :userId
 """)
-    Integer findRoomIdByUserId(@Param("userId") Integer userId);
+    Integer findRoomIdByUserId(@Param("userId") Long userId);
 }
