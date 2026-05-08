@@ -1,7 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserMypage;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;

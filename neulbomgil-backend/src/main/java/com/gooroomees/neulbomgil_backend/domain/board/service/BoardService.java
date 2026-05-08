@@ -1,7 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.board.service;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserMypageRepository;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserMypageRepository userMypageRepository; // ← 추가
     private static final int PAGE_SIZE = 15;
 
     // 최신순 (디폴트)
