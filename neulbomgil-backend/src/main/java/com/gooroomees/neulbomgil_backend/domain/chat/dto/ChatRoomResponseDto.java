@@ -1,4 +1,5 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 public class ChatRoomResponseDto {
     private Integer roomId;
 
-    private Integer userId;
+    private Long userId;
 
     private LocalDateTime lastMessageAt;
 }
