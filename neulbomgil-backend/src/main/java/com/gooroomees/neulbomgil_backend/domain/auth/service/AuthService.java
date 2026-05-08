@@ -1,14 +1,17 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.AuthenticationResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.JwtTokenResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginRequest;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.RegisterRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.RefreshToken;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.Role;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.Status;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
 import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
+import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +33,7 @@ public class AuthService {
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .name(registerRequest.getName())
                 .role(Role.USER)
                 .status(Status.ACTIVE) // 테스트를 위해 ACTIVE로 설정, 추후 메일 인증해야 활성화로 교체
                 .build();
@@ -40,7 +44,7 @@ public class AuthService {
 
     // public String verify() { }
 
-    public AuthenticationResponse login(LoginRequest request) {
+    public JwtTokenResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -53,9 +57,14 @@ public class AuthService {
             throw new RuntimeException("Account is not active");
         }
 
-        String token = jwtProvider.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(token)
+        String accessToken = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+
+        refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+
+        return JwtTokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 

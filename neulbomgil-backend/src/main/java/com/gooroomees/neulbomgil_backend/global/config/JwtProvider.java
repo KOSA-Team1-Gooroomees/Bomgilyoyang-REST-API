@@ -67,7 +67,7 @@ public class JwtProvider {
                 .claim("email", user.getUsername())
                 .claim("type", "access")
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(getSignInKey())
                 .compact();
     }

@@ -3,9 +3,9 @@ package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +24,21 @@ public class AuthController {
     }
 
     @PostMapping("/login") // 일반 로그인
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        JwtTokenResponse jwtTokenResponse = authService.login(request);
+
+        // 리프레스 토큰을 HttpOnly 쿠키에 저장
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경 권장
+                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
+                .maxAge(604800000)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
     /*/api/auth/admin/login	관리자 로그인
@@ -47,6 +60,8 @@ public class AuthController {
                 .path("/api/auth/refresh")
                 .maxAge(0) // 쿠키 즉시 만료
                 .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok().build();
     }
