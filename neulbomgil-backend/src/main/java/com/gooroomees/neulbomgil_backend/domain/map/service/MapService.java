@@ -4,6 +4,7 @@ import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityMarkerR
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.FacilitySearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.MarkerRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.repository.FacilityRepository;
@@ -34,16 +35,9 @@ public class MapService {
                 .collect(Collectors.toList());
     }
 
-    public List<Facility> getFacilities(FacilitySearchRequest request) {
-        if (request.getKeyword() == null || request.getKeyword().trim().isEmpty()) {
-            return List.of();
-        }
-        return facilityRepository.searchByRegion(
-                request.getKeyword().trim(),
-                request.getUserLat(),
-                request.getUserLon(),
-                request.getSort()
-        );
+    @Transactional(readOnly = true)
+    public List<FacilityResponse> getFacilities(FacilitySearchRequest request) {
+        return facilityRepository.searchByRegionCursor(request);
     }
 
     public Facility getFacilityDetail(String facilityId) {

@@ -4,6 +4,7 @@ import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityMarkerR
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.FacilitySearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.MarkerRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.service.MapService;
@@ -26,7 +27,7 @@ public class MapController {
     }
 
     @GetMapping("/facilities")
-    public ResponseEntity<List<Facility>> getFacilities(@ModelAttribute FacilitySearchRequest request) {
+    public ResponseEntity<List<FacilityResponse>> getFacilities(@ModelAttribute FacilitySearchRequest request) {
         return ResponseEntity.ok(mapService.getFacilities(request));
     }
 
