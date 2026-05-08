@@ -10,7 +10,7 @@ public class ChatRequestDto {
 
 
 
-    private Integer senderId;
+    private Long senderId;
 
     private String message;
 }

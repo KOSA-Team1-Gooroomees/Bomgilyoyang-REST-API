@@ -1,6 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.Role;
+
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserChatRepository;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
@@ -25,7 +25,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final UserChatRepository userAuthRepository;
 
-    public ChatRoomResponseDto startChatRoom(Integer userId) {
+    public ChatRoomResponseDto startChatRoom(Long userId) {
 
 
         UserAuth user = userAuthRepository.findById(userId)
@@ -42,12 +42,12 @@ public class ChatService {
 
         return ChatRoomResponseDto.builder()
                 .roomId(chatRoom.getRoomId())
-                .userId(chatRoom.getUser().getUserId())
+                .userId(userId)
                 .lastMessageAt(chatRoom.getLastMessageAt())
                 .build();
     }
 
-    public List<ChatResponseDto> getMessageByRoomId(Integer roomId) {
+    public List<ChatResponseDto> getMessageByRoomId(Long roomId) {
         List<Chat> chats = chatRepository.FindMessagesByRoomId(roomId);
         List<ChatResponseDto> chatResponseDtoList = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class ChatService {
                     ChatResponseDto.builder()
                             .chatId(chat.getChatId())
                             .roomId(chat.getChatRoom().getRoomId())
-                            .senderId(chat.getSenderId())
+                            .senderId(chat.getSender().getUserId())
                             .message(chat.getMessage())
                             .createdAt(chat.getCreatedAt())
                             .readAt(chat.getReadAt())
@@ -87,13 +87,16 @@ public class ChatService {
         return chatRoomResponseDto;
     }
 
-    public ChatResponseDto saveMessage(Integer roomId, ChatRequestDto requestDto) {
+    public ChatResponseDto saveMessage(Long roomId, ChatRequestDto requestDto) {
 
         ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("채팅방이 없습니다."));;
 
+        UserAuth sender = userAuthRepository.findById(requestDto.getSenderId())
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+
         Chat chat = Chat.create(
                 room,
-                requestDto.getSenderId(),
+                sender,
                 requestDto.getMessage()
         );
 
@@ -103,14 +106,14 @@ public class ChatService {
         return ChatResponseDto.builder()
                 .chatId(savedChat.getChatId())
                 .roomId(roomId)
-                .senderId(savedChat.getSenderId())
+                .senderId(sender.getUserId())
                 .message(savedChat.getMessage())
                 .createdAt(savedChat.getCreatedAt())
                 .readAt(savedChat.getReadAt())
                 .build();
     }
     @Transactional
-    public void readMessages(Integer roomId,Integer senderId) {
+    public void readMessages(Long roomId,Long senderId) {
         chatRepository.updateReadAt(roomId,senderId);
     }
 }
