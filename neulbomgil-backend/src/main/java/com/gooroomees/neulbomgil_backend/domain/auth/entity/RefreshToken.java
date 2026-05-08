@@ -14,12 +14,12 @@ public class RefreshToken {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private int userId;
+    private Long userId;
 
     @Column(nullable = false)
     private String refreshToken;
 
-    public RefreshToken(int userId, String refreshToken) {
+    public RefreshToken(Long userId, String refreshToken) {
         this.userId = userId;
         this.refreshToken = refreshToken;
     }
