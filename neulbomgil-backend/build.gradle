@@ -42,14 +42,18 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
 
-	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.3' // JWT API
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3' // JWT Implementation
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JWT Serializer (JSON 처리를 위해 Jackson 선택)
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3' // JWT API
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3' // JWT Implementation
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JWT Serializer (JSON 처리를 위해 Jackson 선택)
 
-	//WebSocket
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+    implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.49'
+    implementation 'io.swagger.core.v3:swagger-models-jakarta:2.2.49'
 }
 
 tasks.named('test') {

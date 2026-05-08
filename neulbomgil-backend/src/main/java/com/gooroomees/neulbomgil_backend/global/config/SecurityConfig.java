@@ -30,10 +30,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         //websocket연결
                         .requestMatchers("/ws/**").permitAll()
-                      //  .requestMatchers("/api/auth/**").permitAll()
+                        //  .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
 
-
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         //.requestMatchers()
                         .anyRequest().authenticated()
                 )

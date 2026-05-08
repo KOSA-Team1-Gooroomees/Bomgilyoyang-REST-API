@@ -2,9 +2,9 @@ package com.gooroomees.neulbomgil_backend.domain.favorite.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteDeleteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
-import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.service.FavoriteService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +19,25 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
+    @Operation(
+            summary = "즐겨찾기 추가"
+    )
     @PostMapping
     public ResponseEntity<Long> addFavorite(@Valid @RequestBody FavoriteRequest request) {
         return ResponseEntity.ok(favoriteService.saveFavorite(request));
     }
 
+    @Operation(
+            summary = "특정 사용자의 즐겨찾기 목록 조회"
+    )
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavorites(
-            @PathVariable Long userId,
-            @ModelAttribute FavoriteSearchRequest request) {
-        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId, request));
+    public ResponseEntity<List<FavoriteResponse>> getFavorites(@PathVariable Long userId) {
+        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId));
     }
 
+    @Operation(
+            summary = "즐겨찾기 삭제"
+    )
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> removeFavorite(
             @PathVariable Long userId,
