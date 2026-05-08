@@ -1,12 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.map.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityMarkerResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.FacilitySearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.MarkerRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityDetailResponse;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityMarkerResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityResponse;
-import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
-import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.NearParkResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.service.MapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,18 +32,21 @@ public class MapController {
     }
 
     @GetMapping("/facilities/{facilityId}")
-    public ResponseEntity<Facility> getFacilityDetail(@PathVariable String facilityId) {
+    public ResponseEntity<FacilityDetailResponse> getFacilityDetail(@PathVariable String facilityId) {
         try {
-            return ResponseEntity.ok(mapService.getFacilityDetail(facilityId));
+            // 서비스에서 이미 FacilityDetailResponse로 변환해서 반환하므로 바로 넘겨줍니다.
+            FacilityDetailResponse response = mapService.getFacilityDetail(facilityId);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/facilities/markers/{facilityId}/nearby-parks")
-    public ResponseEntity<List<Park>> getNearbyParks(
+    public ResponseEntity<List<NearParkResponse>> getNearbyParks(
             @PathVariable String facilityId,
             @RequestParam(defaultValue = "3") Double radius) {
+
         NearbyParkRequest request = new NearbyParkRequest(facilityId, radius);
         return ResponseEntity.ok(mapService.getNearbyParks(request));
     }
