@@ -29,4 +29,15 @@ and c.readAt is null
 """
     )
     void  updateReadAt(Long roomId, Long senderId);
+
+
+@Query("""
+    select count(c) > 0
+    from Chat c
+    where c.chatRoom.user.userId = :userId
+    and c.sender.userId != :userId
+    and c.readAt is null
+""")
+boolean existsUnreadChatByUserId(@Param("userId") Long userId);
+
 }
