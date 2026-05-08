@@ -46,9 +46,6 @@ public class FavoriteService {
     private final MapService mapService;
 
     public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, FavoriteSearchRequest request) {
-        StopWatch stopWatch = new StopWatch("Favorite Service Performance Test");
-        stopWatch.start("N+1 Legacy Logic");
-
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
         List<String> facilityIds = favorites.stream()
                 .map(Favorite::getFacilityId)
@@ -57,7 +54,7 @@ public class FavoriteService {
         Map<String, Facility> facilityMap = facilityRepository.findAllById(facilityIds).stream()
                 .collect(Collectors.toMap(Facility::getId, f -> f));
 
-        List<FavoriteResponse> result = favorites.stream()
+        return favorites.stream()
                 .map(favorite -> FavoriteResponse.builder()
                         .id(favorite.getId())
                         .userId(favorite.getUserId())
@@ -65,10 +62,6 @@ public class FavoriteService {
                         .facility(facilityMap.get(favorite.getFacilityId()))
                         .build())
                 .toList();
-        
-        stopWatch.stop();
-        System.out.println(stopWatch.prettyPrint());
-        return result;
     }
 
     @Transactional
