@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -7,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatRequestDto {
 
-    private Integer roomId;
+
 
     private Integer senderId;
 

@@ -22,4 +22,5 @@ public class ChatResponseDto {
     private LocalDateTime createdAt;
 
     private LocalDateTime readAt;
+
 }
