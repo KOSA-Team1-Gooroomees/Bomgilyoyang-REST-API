@@ -6,14 +6,14 @@ import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteSea
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
 import com.gooroomees.neulbomgil_backend.domain.favorite.entity.Favorite;
 import com.gooroomees.neulbomgil_backend.domain.favorite.repository.FavoriteRepository;
-import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
-import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
-import com.gooroomees.neulbomgil_backend.domain.map.service.MapService;
+import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
+import com.gooroomees.neulbomgil_backend.domain.map.repository.FacilityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
+    private final FacilityRepository facilityRepository;
 
     @Transactional
     public Long saveFavorite(FavoriteRequest request) {
@@ -38,32 +39,23 @@ public class FavoriteService {
         return favoriteRepository.save(favorite).getId();
     }
 
-    private final MapService mapService;
-
     public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, FavoriteSearchRequest request) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
+        List<String> facilityIds = favorites.stream()
+                .map(Favorite::getFacilityId)
+                .distinct()
+                .toList();
+        Map<String, Facility> facilityMap = facilityRepository.findAllById(facilityIds).stream()
+                .collect(Collectors.toMap(Facility::getId, f -> f));
 
-        return favorites.stream().map(favorite -> {
-            try {
-                var facilityDetail = mapService.getFacilityDetail(favorite.getFacilityId());
-                List<Park> parks = mapService.getNearbyParks(new NearbyParkRequest(favorite.getFacilityId(), request.getRadius()));
-                return FavoriteResponse.builder()
+        return favorites.stream()
+                .map(favorite -> FavoriteResponse.builder()
                         .id(favorite.getId())
                         .userId(favorite.getUserId())
                         .facilityId(favorite.getFacilityId())
-                        .facility(facilityDetail)
-                        .parks(parks)
-                        .build();
-            } catch (IllegalArgumentException e) {
-                return FavoriteResponse.builder()
-                        .id(favorite.getId())
-                        .userId(favorite.getUserId())
-                        .facilityId(favorite.getFacilityId())
-                        .facility(null)
-                        .parks(null)
-                        .build();
-            }
-        }).collect(Collectors.toList());
+                        .facility(facilityMap.get(favorite.getFacilityId()))
+                        .build())
+                .toList();
     }
 
     @Transactional

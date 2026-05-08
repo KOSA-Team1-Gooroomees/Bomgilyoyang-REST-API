@@ -2,6 +2,7 @@ package com.gooroomees.neulbomgil_backend.domain.map.service;
 
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
 import com.gooroomees.neulbomgil_backend.domain.map.repository.FacilityRepository;
+import com.gooroomees.neulbomgil_backend.domain.map.repository.ParkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +23,7 @@ import java.util.Optional;
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
+    private final ParkRepository parkRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${vworld.api.key}")
@@ -88,10 +90,8 @@ public class FacilityService {
         for (Map<String, Object> feature : features) {
             String id = (String) feature.get("id");
 
-            // 1. 기존 데이터가 있는지 DB에서 조회
             Optional<Facility> existingFacility = facilityRepository.findById(id);
 
-            // 2. 엔터티 매핑 (기존 데이터 존재 여부 전달)
             Facility facility = mapToEntity(feature, existingFacility);
 
             facilityRepository.save(facility);
@@ -103,7 +103,7 @@ public class FacilityService {
         Map<String, Object> geometry = (Map<String, Object>) feature.get("geometry");
         List<Double> coords = (List<Double>) geometry.get("coordinates");
 
-        // 기존 데이터가 있으면 기존 값을 쓰고, 없으면 요청하신 기본값(40, 0, "facility.png") 사용
+        // 기존 데이터가 있으면 기존 값을 쓰고, 없으면 기본값(40, 0, "facility.png") 사용
         Integer capacity = existing.map(Facility::getCapacityCnt).orElse(40);
         Integer current = existing.map(Facility::getCurrentCnt).orElse(0);
         String image = existing.map(Facility::getFacilityImage).orElse("facility.png");
@@ -127,6 +127,28 @@ public class FacilityService {
     }
 
     private Integer calculateFacilityScore(Map<String, Object> feature) {
-        return 1;
+        Map<String, Object> geometry = (Map<String, Object>) feature.get("geometry");
+        List<Double> coords = (List<Double>) geometry.get("coordinates");
+        double lon = coords.get(0);
+        double lat = coords.get(1);
+
+        Map<String, Object> stats = parkRepository.getParkStatsWithinRadius(lat, lon);
+
+        long count = ((Number) stats.get("count")).longValue();
+        double totalArea = stats.get("totalArea") != null ? ((Number) stats.get("totalArea")).doubleValue() : 0.0;
+
+        // 개수 점수 (0~2.5점)
+        // 예: 3km 내 공원 10개 이상이면 만점
+        double countScore = Math.min(count / 10.0, 1.0) * 2.5;
+
+        // 면적 점수 (0~2.5점)
+        // 예: 총 면적 100,000㎡(약 3만평) 이상이면 만점
+        double areaScore = Math.min(totalArea / 100000.0, 1.0) * 2.5;
+
+        // 4. 종합 점수 합산 및 반올림 (1~5점)
+        int finalScore = (int) Math.round(countScore + areaScore);
+
+        // 최소 1점 보장
+        return Math.max(finalScore, 1);
     }
 }
