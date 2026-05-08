@@ -28,8 +28,12 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
+                        //websocket연결
+                        .requestMatchers("/ws/**").permitAll()
                       //  .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
+
+
                         //.requestMatchers()
                         .anyRequest().authenticated()
                 )
