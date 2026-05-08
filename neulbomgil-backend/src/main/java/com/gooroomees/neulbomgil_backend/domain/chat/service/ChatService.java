@@ -116,4 +116,8 @@ public class ChatService {
     public void readMessages(Long roomId,Long senderId) {
         chatRepository.updateReadAt(roomId,senderId);
     }
+
+    public boolean hasUnreadChats(Long userId) {
+       return chatRepository.existsUnreadChatByUserId(userId);
+    }
 }
