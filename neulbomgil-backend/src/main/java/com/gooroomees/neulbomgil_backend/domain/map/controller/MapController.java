@@ -34,7 +34,6 @@ public class MapController {
     @GetMapping("/facilities/{facilityId}")
     public ResponseEntity<FacilityDetailResponse> getFacilityDetail(@PathVariable String facilityId) {
         try {
-            // 서비스에서 이미 FacilityDetailResponse로 변환해서 반환하므로 바로 넘겨줍니다.
             FacilityDetailResponse response = mapService.getFacilityDetail(facilityId);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {

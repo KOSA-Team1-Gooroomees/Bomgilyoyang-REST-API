@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 public class FavoriteResponse {
     private final Long id;
-    private final int userId;
+    private final Long userId;
     private final String facilityId;
     private final Facility facility;
 }
