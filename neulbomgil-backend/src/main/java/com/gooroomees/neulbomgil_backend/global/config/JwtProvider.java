@@ -2,10 +2,9 @@ package com.gooroomees.neulbomgil_backend.global.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +26,13 @@ public class JwtProvider {
     @Value("${application.security.jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    public Long extractUserId(String token) {
+        return Long.parseLong(extractClaim(token, Claims::getSubject));
+    }
+
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        Claims claims = extractAllClaims(token);
+        return claims.get("email", String.class);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -44,6 +48,30 @@ public class JwtProvider {
         return buildToken(extraClaims, userDetails, accessTokenExpiration);
     }
 
+    // Refresh 토큰 생성
+    public String generateRefreshToken(UserAuth user) {
+        return Jwts
+                .builder()
+                .subject(String.valueOf(user.getUserId()))
+                .claim("type", "refresh")
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(getSignInKey())
+                .compact();
+    }
+
+    public String generateAccessToken(UserAuth user) {
+        return Jwts
+                .builder()
+                .subject(String.valueOf(user.getUserId()))
+                .claim("email", user.getUsername())
+                .claim("type", "access")
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(getSignInKey())
+                .compact();
+    }
+
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts
                 .builder()
@@ -55,6 +83,20 @@ public class JwtProvider {
                 .compact();
     }
 
+    // Jwt 토큰 유효성 검증
+    public boolean isTokenValid(String token) {
+        // 토큰 검증
+        try {
+            Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
@@ -65,8 +107,18 @@ public class JwtProvider {
         return extractExpiration(token).before(new Date());
     }
 
+    public boolean isRefreshToken(String token) {
+        String type = extractType(token);
+        return type.equals("refresh");
+    }
+
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }
+
+    private String extractType(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("type", String.class);
     }
 
     private Claims extractAllClaims(String token) {
