@@ -1,9 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.map.service;
 
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityDetailResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityMarkerResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.FacilitySearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.MarkerRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.NearbyParkRequest;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.FacilityResponse;
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.NearParkResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Facility;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import com.gooroomees.neulbomgil_backend.domain.map.repository.FacilityRepository;
@@ -30,34 +33,34 @@ public class MapService {
                         request.getRadius()
                 )
                 .stream()
-                .map(FacilityMarkerResponse::from)
+                .map(FacilityMarkerResponse::from) // Entity -> Marker DTO 변환
                 .collect(Collectors.toList());
     }
 
-    public List<Facility> getFacilities(FacilitySearchRequest request) {
-        if (request.getKeyword() == null || request.getKeyword().trim().isEmpty()) {
-            return List.of();
-        }
-        return facilityRepository.searchByRegion(
-                request.getKeyword().trim(),
-                request.getUserLat(),
-                request.getUserLon(),
-                request.getSort()
-        );
+    @Transactional(readOnly = true)
+    public List<FacilityResponse> getFacilities(FacilitySearchRequest request) {
+        return facilityRepository.searchByRegionCursor(request);
     }
 
-    public Facility getFacilityDetail(String facilityId) {
-        return facilityRepository.findById(facilityId)
+    public FacilityDetailResponse getFacilityDetail(String facilityId) {
+        Facility facility = facilityRepository.findById(facilityId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 시설이 존재하지 않습니다. ID: " + facilityId));
+
+        return FacilityDetailResponse.from(facility);
     }
 
-    public List<Park> getNearbyParks(NearbyParkRequest request) {
-        Facility facility = getFacilityDetail(request.getFacilityId());
+    public List<NearParkResponse> getNearbyParks(NearbyParkRequest request) {
+        Facility facility = facilityRepository.findById(request.getFacilityId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 시설이 없습니다."));
 
-        return parkRepository.findNearbyParks(
+        List<Park> parks = parkRepository.findNearbyParks(
                 facility.getLatitude(),
                 facility.getLongitude(),
                 request.getRadius()
         );
+
+        return parks.stream()
+                .map(NearParkResponse::from)
+                .toList();
     }
 }

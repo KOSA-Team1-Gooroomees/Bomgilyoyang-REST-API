@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.map.repository;
 
+import com.gooroomees.neulbomgil_backend.domain.map.dto.response.NearParkResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,12 +11,11 @@ import java.util.Map;
 
 public interface ParkRepository extends JpaRepository<Park, Integer> {
 
-    @Query(value = "SELECT *, " +
-            "(6371 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lon)) " +
-            "+ sin(radians(:lat)) * sin(radians(latitude)))) AS distance " +
-            "FROM park " +
-            "HAVING distance <= :radius " +
-            "ORDER BY distance ASC",
+    @Query(value = "SELECT * FROM park p " +
+            "WHERE (6371 * acos(cos(radians(:lat)) * cos(radians(p.latitude)) * cos(radians(p.longitude) - radians(:lon)) " +
+            "+ sin(radians(:lat)) * sin(radians(p.latitude)))) <= :radius " +
+            "ORDER BY (6371 * acos(cos(radians(:lat)) * cos(radians(p.latitude)) * cos(radians(p.longitude) - radians(:lon)) " +
+            "+ sin(radians(:lat)) * sin(radians(p.latitude)))) ASC",
             nativeQuery = true)
     List<Park> findNearbyParks(@Param("lat") Double lat,
                                @Param("lon") Double lon,
