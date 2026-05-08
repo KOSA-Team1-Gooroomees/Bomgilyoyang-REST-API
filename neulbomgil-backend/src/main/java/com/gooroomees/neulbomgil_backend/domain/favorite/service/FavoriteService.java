@@ -39,7 +39,7 @@ public class FavoriteService {
         return favoriteRepository.save(favorite).getId();
     }
 
-    public List<FavoriteResponse> getUserFavoritesWithDetail(int userId, FavoriteSearchRequest request) {
+    public List<FavoriteResponse> getUserFavoritesWithDetail(Long userId, FavoriteSearchRequest request) {
         List<Favorite> favorites = favoriteRepository.findAllByUserId(userId);
         List<String> facilityIds = favorites.stream()
                 .map(Favorite::getFacilityId)
@@ -59,7 +59,7 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void deleteFavorite(int userId, FavoriteDeleteRequest request) {
+    public void deleteFavorite(Long userId, FavoriteDeleteRequest request) {
         favoriteRepository.deleteByUserIdAndFacilityId(userId, request.getFacilityId());
     }
 }

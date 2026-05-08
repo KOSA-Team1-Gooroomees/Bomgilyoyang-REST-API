@@ -25,13 +25,15 @@ public class QUserAuth extends EntityPathBase<UserAuth> {
 
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
 
+    public final StringPath name = createString("name");
+
     public final StringPath password = createString("password");
 
     public final EnumPath<Role> role = createEnum("role", Role.class);
 
     public final EnumPath<Status> status = createEnum("status", Status.class);
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QUserAuth(String variable) {
         super(UserAuth.class, forVariable(variable));

@@ -26,14 +26,14 @@ public class FavoriteController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<FavoriteResponse>> getFavorites(
-            @PathVariable int userId,
+            @PathVariable Long userId,
             @ModelAttribute FavoriteSearchRequest request) {
         return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId, request));
     }
 
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> removeFavorite(
-            @PathVariable int userId,
+            @PathVariable Long userId,
             @Valid @RequestBody FavoriteDeleteRequest request) {
         favoriteService.deleteFavorite(userId, request);
         return ResponseEntity.noContent().build();

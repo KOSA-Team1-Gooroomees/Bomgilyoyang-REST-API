@@ -16,7 +16,7 @@ public class Favorite {
     private Long id;
 
     @Column(nullable = false)
-    private int userId;
+    private Long userId;
 
     @Column(nullable = false)
     private String facilityId;
