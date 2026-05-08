@@ -17,5 +17,4 @@ public class FavoriteResponse {
     private final int userId;
     private final String facilityId;
     private final Facility facility;
-    private final List<Park> parks;
 }
