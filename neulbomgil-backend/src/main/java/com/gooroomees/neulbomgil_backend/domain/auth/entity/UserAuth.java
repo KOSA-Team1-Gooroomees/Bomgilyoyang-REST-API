@@ -39,6 +39,14 @@ public class UserAuth implements UserDetails {
 
     private Status status;
 
+    public void activate() {
+        this.status = Status.ACTIVE;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

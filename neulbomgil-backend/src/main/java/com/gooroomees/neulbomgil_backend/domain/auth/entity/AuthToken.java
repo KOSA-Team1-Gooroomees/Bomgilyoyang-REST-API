@@ -21,11 +21,15 @@ public class AuthToken {
     @Column(nullable = false)
     private String authToken;
 
+    @Enumerated(EnumType.STRING)
+    private TokenType type;
+
     private LocalDateTime expiration;
 
-    public AuthToken(Long userId, String authToken, LocalDateTime expiration) {
+    public AuthToken(Long userId, String authToken, LocalDateTime expiration, TokenType type) {
         this.userId = userId;
         this.authToken = authToken;
         this.expiration = expiration;
+        this.type = type;
     }
 }

@@ -11,7 +11,7 @@ public class UserAuthService {
     private final UserAuthRepository userAuthRepository;
 
     public UserAuth findById(Long userId) {
-        return userAuthRepository.findById(userId.intValue())
+        return userAuthRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
 }

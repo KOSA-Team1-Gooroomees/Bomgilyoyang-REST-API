@@ -41,10 +41,25 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
-    /*/api/auth/admin/login	관리자 로그인
-    /api/auth/kakao	카카오 로그인 (OAuth)
-    /api/auth/password/reset-email	이메일 인증 (SMTP)
-    /api/auth/logout	로그아웃*/
+    @PostMapping("/password/reset-email") // 비밀번호 초기화 메일 발송
+    public ResponseEntity<String> requestPasswordReset(@RequestBody PasswordResetRequest request) {
+        try {
+            authService.requestPasswordReset(request);
+            return ResponseEntity.ok("비밀번호 초기화 메일이 발송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/password/reset") // 비밀번호 재설정 실행
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordUpdateRequest request) {
+        try {
+            authService.resetPassword(request);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
@@ -75,25 +90,15 @@ public class AuthController {
                 .body(new CreateAccessTokenResponse(newAccessToken));
     }
 
+    // 메일 인증
     @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
-
-        // TODO: 저장소(Redis 또는 DB)에서 token을 조회합니다.
-        // String email = redisTemplate.opsForValue().get(token);
-
-        boolean isValidToken = true; // 실제로는 조회 결과를 바탕으로 판단
-
-        if (isValidToken) {
-            // TODO: 인증 성공 로직 처리 (예: DB의 회원 상태를 '인증됨'으로 변경)
-            // TODO: 처리 완료 후 사용된 토큰 삭제
-
+        try {
+            authService.verifyEmail(token);
             return ResponseEntity.ok("이메일 인증이 완료되었습니다. 창을 닫고 로그인을 진행해주세요.");
-            // 참고: 클라이언트(프론트엔드) 화면으로 보내고 싶다면
-            // ResponseEntity.status(HttpStatus.FOUND).location(URI.create("프론트엔드 URL")).build();
-            // 와 같이 리다이렉트 시킬 수도 있습니다.
-        } else {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("유효하지 않거나 만료된 인증 링크입니다.");
+                    .body(e.getMessage());
         }
     }
 }
