@@ -13,7 +13,7 @@ public class DataInitializer implements ApplicationRunner {
 
     private final ParkDataInitService parkDataInitService;
     private final FacilityService facilityService;
-    
+
     @Override
     public void run(ApplicationArguments args) {
         parkDataInitService.initParkData();
