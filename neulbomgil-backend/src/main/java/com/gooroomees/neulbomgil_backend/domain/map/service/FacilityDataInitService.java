@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FacilityService {
+public class FacilityDataInitService {
 
     private final FacilityRepository facilityRepository;
     private final ParkRepository parkRepository;
