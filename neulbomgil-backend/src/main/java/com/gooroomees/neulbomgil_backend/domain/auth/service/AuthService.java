@@ -1,20 +1,39 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
+import ch.qos.logback.core.status.ErrorStatus;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
 import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -27,6 +46,12 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final EmailService emailService;
     private final AuthTokenRepository authTokenRepository;
+
+    @Value("${kakao.auth.client}")
+    private String kakaoKey;
+    @Value("${kakao.auth.client_secret_key}")
+    private String clientSecretKey;
+
 
     @Transactional
     public String register(RegisterRequest registerRequest) {
@@ -98,7 +123,13 @@ public class AuthService {
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = jwtProvider.generateRefreshToken(user);
 
-        refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
+        if (userRefreshToken == null) {
+            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+        } else {
+            refreshTokenRepository.deleteById(userRefreshToken.getId());
+            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+        }
 
         return JwtTokenResponse.builder()
                 .accessToken(accessToken)
@@ -126,5 +157,97 @@ public class AuthService {
         UserAuth user = userAuthService.findById(userId);
 
         return jwtProvider.generateAccessToken(user);
+    }
+
+    // 카카오 로그인
+    public JwtTokenResponse kakaoOAuthLogin(String accessCode, HttpServletResponse httpServletResponse) {
+        KakaoTokenResponse kakaoToken = requestToken(accessCode);
+        KakaoProfileResponse kakaoProfile = requestProfile(kakaoToken);
+
+        UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        if (!user.getStatus().equals(Status.ACTIVE)) {
+            throw new RuntimeException("Account is not active");
+        }
+
+        String accessToken = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+
+        RefreshToken userRefreshToken = refreshTokenRepository.findByUserId(user.getUserId()).orElse(null);
+        if (userRefreshToken == null) {
+            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+        } else {
+            refreshTokenRepository.deleteById(userRefreshToken.getId());
+            refreshTokenRepository.save(new RefreshToken(user.getUserId(), refreshToken));
+        }
+
+        return JwtTokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    private KakaoTokenResponse requestToken(String accessCode) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON)); // 이 부분 추가
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", kakaoKey);
+        params.add("redirect_url", "http://localhost:8088/api/auth/kakao");
+        params.add("code", accessCode);
+        params.add("client_secret", clientSecretKey);
+
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
+
+        ResponseEntity<KakaoTokenResponse> response = restTemplate.exchange(
+                "https://kauth.kakao.com/oauth/token",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                KakaoTokenResponse.class);
+
+        KakaoTokenResponse kakaoToken = null;
+
+        try {
+            kakaoToken = response.getBody();
+            log.info("kakaoToken : " + kakaoToken.getAccess_token());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return kakaoToken;
+    }
+
+    private KakaoProfileResponse requestProfile(KakaoTokenResponse kakaoToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.add("Authorization","Bearer "+ kakaoToken.getAccess_token());
+
+        HttpEntity<MultiValueMap<String,String>> kakaoProfileRequest = new HttpEntity <>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v2/user/me",
+                HttpMethod.GET,
+                kakaoProfileRequest,
+                String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        KakaoProfileResponse kakaoProfile = null;
+        try {
+            kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfileResponse.class);
+            log.info("Kakao Profile : " + kakaoProfile.getKakao_account().getEmail());
+        } catch (Exception e) {
+            log.info(Arrays.toString(e.getStackTrace()));
+            System.out.println(e.getMessage());
+        }
+
+        return kakaoProfile;
     }
 }
