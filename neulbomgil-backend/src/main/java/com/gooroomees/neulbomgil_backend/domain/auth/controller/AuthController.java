@@ -27,7 +27,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         JwtTokenResponse jwtTokenResponse = authService.login(request);
 
-        // 리프레스 토큰을 HttpOnly 쿠키에 저장
+        // 리프레시 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
                 .httpOnly(true)
                 .secure(true) // HTTPS 환경 권장
@@ -37,6 +37,7 @@ public class AuthController {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
@@ -83,8 +84,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh") // 액세스 토큰 재발급
-    public ResponseEntity<CreateAccessTokenResponse> createAccessToken(@RequestBody CreateAccessTokenRequest request) {
-        String newAccessToken = authService.createNewAccessToken(request.getRefreshToken());
+    public ResponseEntity<?> createAccessToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
+        // Set-Cookie에서 토큰 빼오는 로직 추가
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.status(401).body("Refresh Token이 존재하지 않습니다.");
+        }
+
+        String newAccessToken = authService.createNewAccessToken(refreshToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CreateAccessTokenResponse(newAccessToken));
@@ -100,5 +106,28 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }
+    }
+
+    // 카카오 로그인
+    @GetMapping("/kakao")
+    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) {
+        JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
+
+        if (jwtTokenResponse == null)
+            return ResponseEntity.ok(new LoginResponse(null));
+
+        // 리프레시 토큰을 HttpOnly 쿠키에 저장
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경 권장
+                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
+                .maxAge(604800000)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
+
+        return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 }
