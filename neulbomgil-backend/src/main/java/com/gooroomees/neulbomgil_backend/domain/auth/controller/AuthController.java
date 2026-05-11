@@ -84,8 +84,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh") // 액세스 토큰 재발급
-    public ResponseEntity<CreateAccessTokenResponse> createAccessToken(@RequestBody CreateAccessTokenRequest request) {
-        String newAccessToken = authService.createNewAccessToken(request.getRefreshToken());
+    public ResponseEntity<?> createAccessToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
+        // Set-Cookie에서 토큰 빼오는 로직 추가
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.status(401).body("Refresh Token이 존재하지 않습니다.");
+        }
+
+        String newAccessToken = authService.createNewAccessToken(refreshToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CreateAccessTokenResponse(newAccessToken));
