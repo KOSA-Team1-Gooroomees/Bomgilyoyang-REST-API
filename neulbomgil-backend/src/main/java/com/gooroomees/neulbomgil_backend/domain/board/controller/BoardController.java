@@ -31,10 +31,18 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getBoardsByViews(page));
     }
 
-    //게시글 검색
-    @GetMapping("/{boardId}")
+    //게시글 조회
+    @GetMapping("/sort/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(@PathVariable Long boardId) {
         return ResponseEntity.ok(boardService.getOneBoard(boardId));
+    }
+
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<Page<BoardResponseDTO>> searchBoard(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(boardService.searchBoard(keyword, page));
     }
 
     // 글 작성
@@ -47,7 +55,7 @@ public class BoardController {
     }
 
     // 글 수정
-    @PutMapping("/{boardId}")
+    @PutMapping("inserts/{boardId}")
     public ResponseEntity<Void> updateBoard(@PathVariable Long boardId,
                                             @RequestBody BoardRequestDTO dto,
                                             @AuthenticationPrincipal UserDetails userDetails) {
@@ -57,7 +65,7 @@ public class BoardController {
     }
 
     // 글 삭제
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("inserts/{boardId}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId,
                                             @AuthenticationPrincipal UserDetails userDetails) {
         UserAuth userAuth = (UserAuth) userDetails;
