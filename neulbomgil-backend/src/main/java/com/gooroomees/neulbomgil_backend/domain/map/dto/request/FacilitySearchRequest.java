@@ -29,4 +29,3 @@ public class FacilitySearchRequest {
     @Schema(description = "한번에 가져올 데이터 수", example = "10")
     private Integer size = 10;  // 한 번에 가져올 데이터 수
 }
-
