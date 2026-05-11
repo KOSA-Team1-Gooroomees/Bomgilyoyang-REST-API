@@ -44,6 +44,14 @@ public class BoardService {
         return new BoardResponseDTO(board);
     }
 
+    //검색어 입력, 관련 글 가져오기
+    public Page<BoardResponseDTO> searchBoard(String keyword, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        return boardRepository.findByTitleContainingOrContentContaining(
+                        keyword, keyword, pageable)
+                .map(BoardResponseDTO::new);
+    }
+
     // 글 작성
     @Transactional
     public void createBoard(BoardRequestDTO dto, UserAuth userAuth) {
@@ -58,7 +66,7 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
         board.update(dto.getTitle(), dto.getContent());
 
-        if(!board.getUserid().getUserId().equals(userAuth.getUserId())){
+        if(!board.getUser().getUserId().equals(userAuth.getUserId())){
             throw new IllegalArgumentException("본인 글만 수정할 수 있습니다.");
         }
         board.update(dto.getTitle(), dto.getContent());
@@ -71,7 +79,7 @@ public class BoardService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         // 본인 글인지 검증
-        if (!board.getUserid().getUserId().equals(userAuth.getUserId())) {
+        if (!board.getUser().getUserId().equals(userAuth.getUserId())) {
             throw new IllegalArgumentException("본인 글만 삭제할 수 있습니다.");
         }
 

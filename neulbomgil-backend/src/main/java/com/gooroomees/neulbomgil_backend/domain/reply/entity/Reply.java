@@ -1,28 +1,35 @@
-package com.gooroomees.neulbomgil_backend.domain.board.entity;
+package com.gooroomees.neulbomgil_backend.domain.reply.entity;
+
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Board {
+public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardid;
+    private Long replyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "board_id")
+    private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private UserAuth user;
 
-    private String title;
     private String content;
-    private int cnt;
 
     @CreatedDate
     @Column(updatable = false)
@@ -31,20 +38,15 @@ public class Board {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    public static Board create(UserAuth userAuth, String title, String content) {
-        Board board = new Board();
-        board.user = userAuth;// 쓴 사람 id = 수정 가능
-        board.title = title;
-        board.content = content;
-        board.cnt = 0;
-        return board;
-    }
-    public void increaseCnt() {
-        this.cnt += 1;
+    public static Reply create(Board board, UserAuth userAuth, String content) {
+        Reply reply = new Reply();
+        reply.board = board;
+        reply.user = userAuth;
+        reply.content = content;
+        return reply;
     }
 
-    public void update(String title, String content) {
-        this.title = title;
+    public void update(String content) {
         this.content = content;
     }
 }

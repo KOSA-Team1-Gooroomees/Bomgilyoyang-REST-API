@@ -15,8 +15,8 @@ public class BoardResponseDTO {
 
     public BoardResponseDTO(Board board) {
         this.boardid = board.getBoardid();
-        this.userid = board.getUserid().getUserId();   // UserAuth에서 userId 꺼내기
-        this.name = board.getUserid().getName();
+        this.userid = board.getUser().getUserId();   // UserAuth(getUser)에서 getuserId 꺼내기
+        this.name = board.getUser().getName();
         this.title = board.getTitle();
         this.content = board.getContent();
         this.cnt = board.getCnt();
