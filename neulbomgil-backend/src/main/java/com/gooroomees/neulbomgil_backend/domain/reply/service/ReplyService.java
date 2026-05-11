@@ -26,7 +26,7 @@ public class ReplyService {
 
     //댓글 목록 조회
     public Page<ReplyResponseDTO> getReplies(Long boardid, int page) {
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createAt").descending());
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
         return replyRepository.findByBoard_Boardid(boardid, pageable).map(ReplyResponseDTO::new);
     }
 

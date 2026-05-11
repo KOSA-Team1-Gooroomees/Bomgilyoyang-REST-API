@@ -38,8 +38,6 @@ public class ReplyController {
     @PutMapping("/{replyId}")
     public ResponseEntity<Void> updateReply(
             @PathVariable Long boardId,
-            //안에서는 사용안하는 것 같아도 이 댓글이 게시글 안에 속한다는 것을
-            //의미하려면 URL로 표현하는게 명확함
             @PathVariable Long replyId,
             @RequestBody ReplyRequestDTO dto,
             @AuthenticationPrincipal UserDetails userDetails){

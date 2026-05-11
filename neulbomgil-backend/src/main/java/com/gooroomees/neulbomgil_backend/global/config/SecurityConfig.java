@@ -36,8 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/api/boards/**"  // 게시판 전체 허용
+                                "/swagger-ui.html"
                         ).permitAll()
                         //.requestMatchers()
                         .anyRequest().authenticated()
