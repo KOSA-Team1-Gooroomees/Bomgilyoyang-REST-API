@@ -1,8 +1,10 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
+import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
+    private final UserAuthService userAuthService;
 
     @PostMapping("/signup") // 회원가입
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
@@ -129,5 +132,20 @@ public class AuthController {
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> createAccessToken(@RequestBody UserAuth newUser) {
+        userAuthService.changeUser(newUser);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("User changed");
+    }
+
+    @GetMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestParam("id") Long userId) {
+        userAuthService.deleteUser(userId);
+
+        return ResponseEntity.ok("User Removed");
     }
 }
