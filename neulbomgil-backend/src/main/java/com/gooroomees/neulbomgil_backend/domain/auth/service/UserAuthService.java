@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class UserAuthService {
     private final UserAuthRepository userAuthRepository;
 
-    public UserAuth findById(int userId) {
+    public UserAuth findById(Long userId) {
         return userAuthRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }

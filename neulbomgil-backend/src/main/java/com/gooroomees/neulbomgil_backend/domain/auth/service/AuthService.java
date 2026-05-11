@@ -1,48 +1,86 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.JwtTokenResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.LoginRequest;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.RegisterRequest;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.RefreshToken;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.Role;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.Status;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
-import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserRepository;
+import com.gooroomees.neulbomgil_backend.domain.auth.repository.UserAuthRepository;
 import com.gooroomees.neulbomgil_backend.global.config.JwtProvider;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final RefreshTokenService refreshTokenService;
-    private final UserRepository userRepository;
+    private final UserAuthRepository userAuthRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
+    private final UserAuthService userAuthService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailService emailService;
+    private final AuthTokenRepository authTokenRepository;
 
+    @Transactional
     public String register(RegisterRequest registerRequest) {
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .name(registerRequest.getName())
                 .role(Role.USER)
-                .status(Status.ACTIVE) // 테스트를 위해 ACTIVE로 설정, 추후 메일 인증해야 활성화로 교체
+                .status(Status.INACTIVE)
                 .build();
-        userRepository.save(user);
+        userAuthRepository.save(user);
+        emailService.sendAuthLink(user.getUserId());
 
-        return "User registered";
+        return "User registered. Please check your email for verification.";
     }
 
-    // public String verify() { }
+    @Transactional
+    public void verifyEmail(String token) {
+        AuthToken authToken = authTokenRepository.findByAuthTokenAndType(token, TokenType.SIGNUP)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 인증 토큰입니다."));
+
+        if (authToken.getExpiration().isBefore(LocalDateTime.now())) {
+            authTokenRepository.delete(authToken);
+            throw new IllegalArgumentException("만료된 인증 토큰입니다.");
+        }
+
+        UserAuth user = userAuthService.findById(authToken.getUserId());
+        user.activate();
+        userAuthRepository.save(user);
+        authTokenRepository.delete(authToken);
+    }
+
+    @Transactional
+    public void requestPasswordReset(PasswordResetRequest request) {
+        UserAuth user = userAuthRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+        emailService.sendPasswordResetLink(user.getUserId());
+    }
+
+    @Transactional
+    public void resetPassword(PasswordUpdateRequest request) {
+        AuthToken authToken = authTokenRepository.findByAuthTokenAndType(request.getToken(), TokenType.PASSWORD_RESET)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 비밀번호 초기화 토큰입니다."));
+
+        if (authToken.getExpiration().isBefore(LocalDateTime.now())) {
+            authTokenRepository.delete(authToken);
+            throw new IllegalArgumentException("만료된 인증 토큰입니다.");
+        }
+
+        UserAuth user = userAuthService.findById(authToken.getUserId());
+        user.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+        userAuthRepository.save(user);
+        authTokenRepository.delete(authToken);
+    }
 
     public JwtTokenResponse login(LoginRequest request) {
         authenticationManager.authenticate(
@@ -52,7 +90,7 @@ public class AuthService {
                 )
         );
 
-        UserAuth user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        UserAuth user = userAuthRepository.findByEmail(request.getEmail()).orElseThrow();
         if (!user.getStatus().equals(Status.ACTIVE)) {
             throw new RuntimeException("Account is not active");
         }
@@ -68,15 +106,10 @@ public class AuthService {
                 .build();
     }
 
-/*/api/auth/admin/login	관리자 로그인
-    // /api/auth/kakao	카카오 로그인 (OAuth)
-/api/auth/password/reset-email	이메일 인증 (SMTP)
-    /api/auth/logout	로그아웃*/
     public void logout(String refreshToken) {
         if (!jwtProvider.isTokenValid(refreshToken))
             throw new IllegalArgumentException("토큰이 아닌 값이 넘어옴");
 
-        // 토큰의 type 체크
         if (!jwtProvider.isRefreshToken(refreshToken))
             throw new IllegalArgumentException("해당 토큰은 refresh 토큰이 아님");
 
@@ -84,16 +117,14 @@ public class AuthService {
         refreshTokenRepository.deleteById(userId);
     }
 
-    // 전달받은 리프레시 토큰을 검사하고 유효하면 액세스 토큰을 생성해줌
     public String createNewAccessToken(String refreshToken) {
         if (!jwtProvider.isTokenValid(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 Refresh Token");
         }
 
         Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        UserAuth user = userService.findById(userId);
+        UserAuth user = userAuthService.findById(userId);
 
         return jwtProvider.generateAccessToken(user);
     }
-
 }

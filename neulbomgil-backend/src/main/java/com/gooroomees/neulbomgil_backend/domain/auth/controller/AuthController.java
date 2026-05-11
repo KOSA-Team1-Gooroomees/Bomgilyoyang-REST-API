@@ -41,10 +41,26 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
-    /*/api/auth/admin/login	관리자 로그인
-    /api/auth/kakao	카카오 로그인 (OAuth)
-    /api/auth/password/reset-email	이메일 인증 (SMTP)
-    /api/auth/logout	로그아웃*/
+    @PostMapping("/password/reset-email") // 비밀번호 초기화 메일 발송
+    public ResponseEntity<String> requestPasswordReset(@RequestBody PasswordResetRequest request) {
+        try {
+            authService.requestPasswordReset(request);
+            return ResponseEntity.ok("비밀번호 초기화 메일이 발송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/password/reset") // 비밀번호 재설정 실행
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordUpdateRequest request) {
+        try {
+            authService.resetPassword(request);
+            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
             @RequestHeader("Authorization") String authHeader,
@@ -72,5 +88,17 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CreateAccessTokenResponse(newAccessToken));
+    }
+
+    // 메일 인증
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+        try {
+            authService.verifyEmail(token);
+            return ResponseEntity.ok("이메일 인증이 완료되었습니다. 창을 닫고 로그인을 진행해주세요.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 }
