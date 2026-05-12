@@ -27,6 +27,7 @@ public class ChatRoom {
    @JoinColumn(name = "user_id", nullable = false)
     private UserAuth  user;
 
+
     @Column(name = "last_message_at")
     private LocalDateTime lastMessageAt;
 

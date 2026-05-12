@@ -28,4 +28,5 @@ select cr from ChatRoom cr where cr.roomId = :roomId
     )
     Optional<ChatRoom> findById(Long roomId);
 
+
 }
