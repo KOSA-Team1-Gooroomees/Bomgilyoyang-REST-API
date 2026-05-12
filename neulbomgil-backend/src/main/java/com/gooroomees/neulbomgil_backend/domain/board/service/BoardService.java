@@ -40,6 +40,13 @@ public class BoardService {
         return boardRepository.findAll(pageable)
                 .map(BoardResponseDTO::new);
     }
+    //댓글 많은순
+    public Page<BoardResponseDTO> getBoardsReplyCount(int page){
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        return boardRepository.findAllOrderByReplyCount(pageable)
+                .map(BoardResponseDTO::new);
+    }
+
     // 상세 글 클릭 + 조회수 증가
     @Transactional
     public BoardResponseDTO getOneBoard(Long boardId) {

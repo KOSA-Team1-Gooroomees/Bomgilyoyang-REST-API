@@ -31,6 +31,13 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getBoardsByViews(page));
     }
 
+    //댓글 많은 순
+    @GetMapping("/sort/replies")
+    public ResponseEntity<Page<BoardResponseDTO>>getBoardsReplyCount(@RequestParam(defaultValue = "0")int page)
+    {
+        return ResponseEntity.ok(boardService.getBoardsReplyCount(page));
+    }
+
     //게시글 조회
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(@PathVariable Long boardId) {

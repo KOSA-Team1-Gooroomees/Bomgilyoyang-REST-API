@@ -8,7 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
     Page<Reply> findByBoard_Boardid(Long boardId, Pageable pageable);
-
-
     Long countByUser(UserAuth user);
 }
