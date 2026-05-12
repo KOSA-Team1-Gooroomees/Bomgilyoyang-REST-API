@@ -34,14 +34,8 @@ public class FavoriteController {
 
     @GetMapping("/me")
     public ResponseEntity<List<FavoriteResponse>> getFavorites(
-            @AuthenticationPrincipal UserDetails userDetails // UserAuth 대신 UserDetails로 변경
+            @AuthenticationPrincipal UserAuth userAuth
     ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        // UserAuth로 캐스팅 시도
-        UserAuth userAuth = (UserAuth) userDetails;
         return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userAuth.getUserId()));
     }
 
