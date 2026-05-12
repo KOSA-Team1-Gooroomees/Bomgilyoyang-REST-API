@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FavoriteDeleteRequest {
-
     @NotBlank(message = "시설 ID는 필수입니다.")
     private String facilityId;
 }
