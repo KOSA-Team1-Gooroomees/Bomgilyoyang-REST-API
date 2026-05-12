@@ -1,10 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "인증 및 인가 관리", description = "회원 가입, 로그인, OAuth, 메일 인증용 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -21,12 +24,14 @@ public class AuthController {
     private final EmailService emailService;
     private final UserAuthService userAuthService;
 
-    @PostMapping("/signup") // 회원가입
+    @Operation(summary = "회원 가입")
+    @PostMapping("/signup")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @PostMapping("/login") // 일반 로그인
+    @Operation(summary = "일반 로그인")
+    @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         JwtTokenResponse jwtTokenResponse = authService.login(request);
 
@@ -45,7 +50,8 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
-    @PostMapping("/password/reset-email") // 비밀번호 초기화 메일 발송
+    @Operation(summary = "비밀번호 초기화 메일 발송")
+    @PostMapping("/password/reset-email")
     public ResponseEntity<String> requestPasswordReset(@RequestBody PasswordResetRequest request) {
         try {
             authService.requestPasswordReset(request);
@@ -55,7 +61,8 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/password/reset") // 비밀번호 재설정 실행
+    @Operation(summary = "비밀번호 재설정")
+    @PostMapping("/password/reset")
     public ResponseEntity<String> resetPassword(@RequestBody PasswordUpdateRequest request) {
         try {
             authService.resetPassword(request);
@@ -65,6 +72,7 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
             @RequestHeader("Authorization") String authHeader,
@@ -86,7 +94,8 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/refresh") // 액세스 토큰 재발급
+    @Operation(summary = "액세스 토큰 재발급")
+    @PostMapping("/refresh")
     public ResponseEntity<?> createAccessToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
         // Set-Cookie에서 토큰 빼오는 로직 추가
         if (refreshToken == null || refreshToken.isEmpty()) {
@@ -99,7 +108,7 @@ public class AuthController {
                 .body(new CreateAccessTokenResponse(newAccessToken));
     }
 
-    // 메일 인증
+    @Operation(summary = "메일 인증")
     @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
         try {
@@ -111,7 +120,7 @@ public class AuthController {
         }
     }
 
-    // 카카오 로그인
+    @Operation(summary = "카카오 로그인")
     @GetMapping("/kakao")
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) {
         JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
@@ -134,6 +143,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
+    @Operation(summary = "사용자 삭제")
     @GetMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam("id") Long userId) {
         userAuthService.deleteUser(userId);
