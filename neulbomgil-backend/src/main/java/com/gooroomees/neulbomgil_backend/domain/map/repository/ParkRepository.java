@@ -1,6 +1,5 @@
 package com.gooroomees.neulbomgil_backend.domain.map.repository;
 
-import com.gooroomees.neulbomgil_backend.domain.map.dto.response.NearParkResponse;
 import com.gooroomees.neulbomgil_backend.domain.map.entity.Park;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

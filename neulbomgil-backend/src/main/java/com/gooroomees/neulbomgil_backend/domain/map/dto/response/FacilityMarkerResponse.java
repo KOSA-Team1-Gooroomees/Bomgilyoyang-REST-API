@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FacilityMarkerResponse {
-
     private String id;
     private String facilityName;
     private String newAddress;

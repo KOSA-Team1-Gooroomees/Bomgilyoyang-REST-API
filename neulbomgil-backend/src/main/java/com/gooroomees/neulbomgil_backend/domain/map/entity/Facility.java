@@ -15,11 +15,11 @@ public class Facility {
     @Id
     private String id;
 
-    private String facilityName;      // fac_nam
-    private String facilityTel;       // fac_tel
-    private String categoryName;      // cat_nam
-    private String oldAddress;        // fac_o_add
-    private String newAddress;        // fac_n_add
+    private String facilityName;      // 시설 이름
+    private String facilityTel;       // 시설 전화번호
+    private String categoryName;      // 카테고리
+    private String oldAddress;        // 구주소
+    private String newAddress;        // 신주소
 
     private Double longitude;         // 좌표 X
     private Double latitude;          // 좌표 Y

@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.favorite.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteDeleteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.request.FavoriteRequest;
 import com.gooroomees.neulbomgil_backend.domain.favorite.dto.response.FavoriteResponse;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,26 +26,30 @@ public class FavoriteController {
             summary = "즐겨찾기 추가"
     )
     @PostMapping
-    public ResponseEntity<Long> addFavorite(@Valid @RequestBody FavoriteRequest request) {
-        return ResponseEntity.ok(favoriteService.saveFavorite(request));
+    public ResponseEntity<Long> addFavorite(
+            @AuthenticationPrincipal UserAuth userAuth,
+            @Valid @RequestBody FavoriteRequest request) {
+        return ResponseEntity.ok(favoriteService.saveFavorite(userAuth.getUserId(), request));
     }
 
     @Operation(
-            summary = "특정 사용자의 즐겨찾기 목록 조회"
+            summary = "특정 사용자의 즐겨찾기 시설 조회"
     )
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavorites(@PathVariable Long userId) {
-        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userId));
+    @GetMapping("/me")
+    public ResponseEntity<List<FavoriteResponse>> getFavorites(
+            @AuthenticationPrincipal UserAuth userAuth
+    ) {
+        return ResponseEntity.ok(favoriteService.getUserFavoritesWithDetail(userAuth.getUserId()));
     }
 
     @Operation(
             summary = "즐겨찾기 삭제"
     )
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping("/me")
     public ResponseEntity<Void> removeFavorite(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserAuth userAuth,
             @Valid @RequestBody FavoriteDeleteRequest request) {
-        favoriteService.deleteFavorite(userId, request);
+        favoriteService.deleteFavorite(userAuth.getUserId(), request);
         return ResponseEntity.noContent().build();
     }
 }
