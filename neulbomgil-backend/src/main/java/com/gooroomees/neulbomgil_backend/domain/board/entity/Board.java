@@ -47,4 +47,11 @@ public class Board {
         this.title = title;
         this.content = content;
     }
+    //서비스에서 검사할 걸 여기서 작성하면, 서비스에 여러곳에서 작성할 필요 없이
+    //편리함.
+    public void validateOwner( UserAuth userAuth) {
+        if (!this.user.getUserId().equals(userAuth.getUserId())) {
+            throw new IllegalArgumentException("본인 글만 수정/삭제할 수 있습니다.");
+        }
+    }
 }

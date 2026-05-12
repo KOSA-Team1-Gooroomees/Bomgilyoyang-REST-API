@@ -21,6 +21,12 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private static final int PAGE_SIZE = 15;
 
+    //게시글 없으면 예외처리
+    private Board findBoard(Long boardId){
+        return boardRepository.findById(boardId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    }
+
     // 최신순 (디폴트)
     public Page<BoardResponseDTO> getAllBoards(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
@@ -34,12 +40,10 @@ public class BoardService {
         return boardRepository.findAll(pageable)
                 .map(BoardResponseDTO::new);
     }
-
     // 상세 글 클릭 + 조회수 증가
     @Transactional
     public BoardResponseDTO getOneBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Board board = findBoard(boardId);
         board.increaseCnt();
         return new BoardResponseDTO(board);
     }
@@ -62,27 +66,16 @@ public class BoardService {
     // 글 수정
     @Transactional
     public void updateBoard(BoardRequestDTO dto,Long boardId, UserAuth userAuth) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        board.update(dto.getTitle(), dto.getContent());
-
-        if(!board.getUser().getUserId().equals(userAuth.getUserId())){
-            throw new IllegalArgumentException("본인 글만 수정할 수 있습니다.");
-        }
+        Board board = findBoard(boardId);
+        board.validateOwner(userAuth);
         board.update(dto.getTitle(), dto.getContent());
     }
 
     // 글 삭제
     @Transactional
     public void deleteBoard(Long boardId, UserAuth userAuth) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
-        // 본인 글인지 검증
-        if (!board.getUser().getUserId().equals(userAuth.getUserId())) {
-            throw new IllegalArgumentException("본인 글만 삭제할 수 있습니다.");
-        }
-
+        Board board = findBoard(boardId);
+        board.validateOwner(userAuth);
         boardRepository.deleteById(boardId);
     }
 }
