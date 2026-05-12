@@ -10,10 +10,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FavoriteRequest {
-
-    @NotNull(message = "사용자 ID는 필수입니다.")
-    private Long userId;
-
     @NotBlank(message = "시설 ID는 필수입니다.")
     private String facilityId;
 }
