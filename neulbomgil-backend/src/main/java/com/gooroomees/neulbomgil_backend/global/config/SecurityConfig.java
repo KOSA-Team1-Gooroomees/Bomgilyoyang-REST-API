@@ -29,6 +29,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
                         //websocket연결
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/map/**").permitAll()
                         .requestMatchers("/api/favorites/**").permitAll()
                         .requestMatchers("/images/**").permitAll()

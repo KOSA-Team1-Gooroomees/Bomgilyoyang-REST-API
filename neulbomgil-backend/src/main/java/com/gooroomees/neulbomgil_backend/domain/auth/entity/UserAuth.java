@@ -87,4 +87,7 @@ public class UserAuth implements UserDetails {
         return status.equals(Status.ACTIVE);
     }
 
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
 }
