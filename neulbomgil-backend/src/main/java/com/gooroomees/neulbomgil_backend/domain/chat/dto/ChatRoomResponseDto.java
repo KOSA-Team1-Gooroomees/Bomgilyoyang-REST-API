@@ -6,13 +6,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@AllArgsConstructor
-@Builder
-public class ChatRoomResponseDto {
-    private Long roomId;
-
-    private Long userId;
-
-    private LocalDateTime lastMessageAt;
+public record ChatRoomResponseDto(
+        Long roomId,
+        Long userId,
+        LocalDateTime lastMessageAt
+) {
 }

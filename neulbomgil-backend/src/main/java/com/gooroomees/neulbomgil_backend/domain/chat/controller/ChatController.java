@@ -24,8 +24,8 @@ public class ChatController {
     }
 
     @GetMapping("/{roomId}/message")
-    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId) {
-        return chatService.getMessageByRoomId(roomId);
+    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId,@AuthenticationPrincipal UserAuth userAuth) {
+        return chatService.getMessageByRoomId(roomId,userAuth.getUserId());
     }
 
     @GetMapping("/admin")
@@ -34,8 +34,9 @@ public class ChatController {
     }
 
     @PostMapping("/{roomId}/message")
-    public ChatResponseDto sendMessage(@PathVariable Long roomId, @RequestBody ChatRequestDto requestDto) {
-        return chatService.saveMessage(roomId, requestDto);
+    public ChatResponseDto sendMessage(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth,
+                                       @RequestBody ChatRequestDto requestDto) {
+        return chatService.saveMessage(roomId,userAuth.getUserId(), requestDto);
     }
 
     @PutMapping("/{roomId}/read")
