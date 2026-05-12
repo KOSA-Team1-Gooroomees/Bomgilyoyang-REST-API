@@ -2,7 +2,9 @@ package com.gooroomees.neulbomgil_backend.domain.admin.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.admin.dto.AdminUserResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.admin.service.AdminService;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +33,10 @@ public class AdminController {
     }
 
 
-    @PatchMapping("/users/{userId}/status")
-    public void updateUserStatus(@PathVariable Long userId) {
-        adminService.updateUserStatus(userId);
+    @PatchMapping("/users/status")
+    public void updateUserStatus(@AuthenticationPrincipal UserAuth userAuth)
+    {
+        adminService.updateUserStatus(userAuth.getUserId());
     }
 
 }
