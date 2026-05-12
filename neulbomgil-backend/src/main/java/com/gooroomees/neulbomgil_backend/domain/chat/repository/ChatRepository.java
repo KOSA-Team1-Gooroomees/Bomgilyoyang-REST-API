@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
@@ -39,5 +40,7 @@ and c.readAt is null
     and c.readAt is null
 """)
 boolean existsUnreadChatByUserId(@Param("userId") Long userId);
+
+    Optional<Chat> findTopByChatRoom_RoomIdOrderByCreatedAtDesc(Long roomId);
 
 }

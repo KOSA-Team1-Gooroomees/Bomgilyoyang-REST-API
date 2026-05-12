@@ -42,8 +42,10 @@ public class ChatService {
 
         return new ChatRoomResponseDto(
                 chatRoom.getRoomId(),
-               userId,
-               chatRoom.getLastMessageAt()
+                user.getUserId(),
+                user.getName(),
+                null,
+                null
         );
 
     }
@@ -75,13 +77,26 @@ public class ChatService {
         List<ChatRoomResponseDto> chatRoomResponseDto = new ArrayList<>();
 
         for (ChatRoom room : rooms) {
+            UserAuth user = room.getUser();
+
+            Chat latestChat = chatRepository
+                    .findTopByChatRoom_RoomIdOrderByCreatedAtDesc(room.getRoomId())
+                    .orElse(null);
+
+            String lastMessage = null;
+
+            if (latestChat != null) {
+                lastMessage = latestChat.getMessage();
+            }
             chatRoomResponseDto.add(
                     new ChatRoomResponseDto(
                             room.getRoomId(),
-                            room.getUser().getUserId(),
+                            user.getUserId(),
+                            user.getName(),
+                            lastMessage,
                             room.getLastMessageAt()
                     )
-                  );
+            );
         }
 
         return chatRoomResponseDto;
