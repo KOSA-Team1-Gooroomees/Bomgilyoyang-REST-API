@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.auth.dto;
+package com.gooroomees.neulbomgil_backend.domain.auth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
-    private String accessToken;
+public class PasswordResetRequest {
+    private String email;
 }

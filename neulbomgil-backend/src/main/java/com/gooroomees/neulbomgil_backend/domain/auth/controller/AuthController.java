@@ -1,11 +1,16 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.LoginRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordResetRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordUpdateRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.RegisterRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.CreateAccessTokenResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.LoginResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

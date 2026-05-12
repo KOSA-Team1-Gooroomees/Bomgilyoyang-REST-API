@@ -31,7 +31,7 @@ public class EmailService {
         javaMailSender.send(message);
     }
 
-    public String sendAuthLink(Long userId) {
+    public void sendAuthLink(Long userId) {
         UserAuth user = userAuthService.findById(userId);
 
         String authToken = UUID.randomUUID().toString();
@@ -62,8 +62,6 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new RuntimeException("메일 발송에 실패했습니다.", e);
         }
-
-        return authToken;
     }
 
     public void sendPasswordResetLink(Long userId) {

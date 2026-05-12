@@ -1,8 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
-import ch.qos.logback.core.status.ErrorStatus;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.LoginRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordResetRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordUpdateRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.RegisterRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoProfileResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
@@ -49,6 +53,8 @@ public class AuthService {
 
     @Transactional
     public String register(RegisterRequest registerRequest) {
+        // 이메일 중복되면 처리안되도록
+
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
