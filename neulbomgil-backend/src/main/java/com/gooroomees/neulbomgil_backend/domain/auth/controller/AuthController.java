@@ -134,14 +134,6 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<?> createAccessToken(@RequestBody UserAuth newUser) {
-        userAuthService.changeUser(newUser);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("User changed");
-    }
-
     @GetMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam("id") Long userId) {
         userAuthService.deleteUser(userId);
