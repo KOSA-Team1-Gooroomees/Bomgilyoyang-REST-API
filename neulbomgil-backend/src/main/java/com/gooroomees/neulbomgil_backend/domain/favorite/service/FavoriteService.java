@@ -25,14 +25,14 @@ public class FavoriteService {
     private final FacilityRepository facilityRepository;
 
     @Transactional
-    public Long saveFavorite(FavoriteRequest request) {
-        favoriteRepository.findByUserIdAndFacilityId(request.getUserId(), request.getFacilityId())
+    public Long saveFavorite(Long userId, FavoriteRequest request) {
+        favoriteRepository.findByUserIdAndFacilityId(userId, request.getFacilityId())
                 .ifPresent(f -> {
                     throw new IllegalStateException("이미 즐겨찾기한 시설입니다.");
                 });
 
         Favorite favorite = Favorite.builder()
-                .userId(request.getUserId())
+                .userId(userId)
                 .facilityId(request.getFacilityId())
                 .build();
 
