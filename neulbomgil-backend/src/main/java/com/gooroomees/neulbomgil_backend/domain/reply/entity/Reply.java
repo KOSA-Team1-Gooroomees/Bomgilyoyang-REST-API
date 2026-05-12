@@ -45,8 +45,12 @@ public class Reply {
         reply.content = content;
         return reply;
     }
-
     public void update(String content) {
         this.content = content;
+    }
+    public void validateOwner( UserAuth userAuth) {
+        if (!this.user.getUserId().equals(userAuth.getUserId())) {
+            throw new IllegalArgumentException("본인 댓글만 수정/삭제할 수 있습니다.");
+        }
     }
 }

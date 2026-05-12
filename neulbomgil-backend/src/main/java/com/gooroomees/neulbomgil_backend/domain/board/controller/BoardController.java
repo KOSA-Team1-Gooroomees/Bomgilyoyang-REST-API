@@ -32,7 +32,7 @@ public class BoardController {
     }
 
     //게시글 조회
-    @GetMapping("/sort/{boardId}")
+    @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(@PathVariable Long boardId) {
         return ResponseEntity.ok(boardService.getOneBoard(boardId));
     }
@@ -47,28 +47,31 @@ public class BoardController {
 
     // 글 작성
     @PostMapping("/inserts")
-    public ResponseEntity<Void> createBoard(@RequestBody BoardRequestDTO dto,
-                                            @AuthenticationPrincipal UserDetails userDetails) {
-        UserAuth userAuth = (UserAuth) userDetails;
+    public ResponseEntity<Void> createBoard(
+            @RequestBody BoardRequestDTO dto,
+            @AuthenticationPrincipal UserAuth userAuth)
+    {
         boardService.createBoard(dto, userAuth);
         return ResponseEntity.ok().build();
     }
 
     // 글 수정
-    @PutMapping("inserts/{boardId}")
-    public ResponseEntity<Void> updateBoard(@PathVariable Long boardId,
-                                            @RequestBody BoardRequestDTO dto,
-                                            @AuthenticationPrincipal UserDetails userDetails) {
-        UserAuth userAuth = (UserAuth) userDetails;
+    @PutMapping("/{boardId}")
+    public ResponseEntity<Void> updateBoard(
+            @PathVariable Long boardId,
+            @RequestBody BoardRequestDTO dto,
+            @AuthenticationPrincipal UserAuth userAuth)
+    {
         boardService.updateBoard(dto, boardId, userAuth);
         return ResponseEntity.ok().build();
     }
 
     // 글 삭제
-    @DeleteMapping("inserts/{boardId}")
-    public ResponseEntity<Void> deleteBoard(@PathVariable Long boardId,
-                                            @AuthenticationPrincipal UserDetails userDetails) {
-        UserAuth userAuth = (UserAuth) userDetails;
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<Void> deleteBoard(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserAuth userAuth)
+    {
         boardService.deleteBoard(boardId, userAuth);
         return ResponseEntity.noContent().build();
     }

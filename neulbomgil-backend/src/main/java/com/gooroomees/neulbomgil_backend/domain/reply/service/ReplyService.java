@@ -22,41 +22,47 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReplyService {
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
-    private static final int PAGE_SIZE = 15;
+    private static final int PAGE_SIZE = 5;
+
+    //존재하지 않는 게시글
+    private Board findBoard(Long boardId){
+        return boardRepository.findById(boardId).orElseThrow(()
+                -> new IllegalArgumentException("존재하지 않은 게시글입니다."));
+    }
+    //존재하지 않는 댓글
+    private Reply findReply(Long replyId){
+        return replyRepository.findById(replyId).orElseThrow(()
+                -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+    }
 
     //댓글 목록 조회
-    public Page<ReplyResponseDTO> getReplies(Long boardid, int page) {
+    public Page<ReplyResponseDTO> getReplies(Long boardId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return replyRepository.findByBoard_Boardid(boardid, pageable).map(ReplyResponseDTO::new);
+        return replyRepository.findByBoard_Boardid(boardId, pageable).map(ReplyResponseDTO::new);
     }
 
     //댓글 작성
     @Transactional
     public void createReply(Long boardId, ReplyRequestDTO dto, UserAuth userAuth) {
-        Board board = boardRepository.findById(boardId).orElseThrow(()
-                -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        Board board = findBoard(boardId);
         Reply reply = Reply.create(board, userAuth, dto.getContent());
         replyRepository.save(reply);
     }
 
     //댓글 수정
     @Transactional
-    public void updateReply(Long replyId, ReplyRequestDTO dto, UserAuth userAuth) {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(()
-                -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        if (!reply.getUser().getUserId().equals(userAuth.getUserId())) {
-            throw new IllegalArgumentException("본인 댓글만 수정할 수 있습니다.");
-        }
-        reply.update(dto.getContent());
+    public void updateReply(Long boardId, Long replyId, ReplyRequestDTO dto, UserAuth userAuth) {
+        Board board = findBoard(boardId);//게시글 있는지 확인
+        Reply reply = findReply(replyId);//댓글 있는지 확인
+        reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
+        reply.update(dto.getContent());// 위의 조건이 다 해당된다면 수정 가능
     }
     //댓글 삭제
     @Transactional
-    public void deleteReply(Long replyId, UserAuth userAuth){
-        Reply reply = replyRepository.findById(replyId).orElseThrow(()
-                -> new IllegalArgumentException("존재하지 않은 댓글입니다."));
-        if(!reply.getUser().getUserId().equals(userAuth.getUserId())){
-            throw new IllegalArgumentException("본인 댓글만 삭제할 수 있습니다.");
+    public void deleteReply(Long boardId, Long replyId, UserAuth userAuth){
+        Board board = findBoard(boardId);//게시글 있는지 확인
+        Reply reply = findReply(replyId);//댓글 있는지 확인
+        reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
+        replyRepository.delete(reply);
         }
-
     }
-}

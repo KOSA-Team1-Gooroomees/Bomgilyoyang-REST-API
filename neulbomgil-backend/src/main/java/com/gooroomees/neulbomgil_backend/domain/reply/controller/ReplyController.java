@@ -29,8 +29,7 @@ public class ReplyController {
     public ResponseEntity<Void> createReply(
             @PathVariable Long boardId,
             @RequestBody ReplyRequestDTO dto,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        UserAuth userAuth = (UserAuth) userDetails;
+            @AuthenticationPrincipal UserAuth userAuth) {
         replyService.createReply(boardId, dto, userAuth);
         return ResponseEntity.ok().build();
     }
@@ -40,9 +39,8 @@ public class ReplyController {
             @PathVariable Long boardId,
             @PathVariable Long replyId,
             @RequestBody ReplyRequestDTO dto,
-            @AuthenticationPrincipal UserDetails userDetails){
-        UserAuth userAuth = (UserAuth)userDetails;
-        replyService.updateReply(replyId, dto, userAuth);
+            @AuthenticationPrincipal UserAuth userAuth){
+        replyService.updateReply(boardId, replyId, dto, userAuth);
         return ResponseEntity.ok().build();
     }
     // 댓글 삭제
@@ -50,9 +48,8 @@ public class ReplyController {
     public ResponseEntity<Void> deleteReply(
             @PathVariable Long boardId,
             @PathVariable Long replyId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        UserAuth userAuth = (UserAuth) userDetails;
-        replyService.deleteReply(replyId, userAuth);
+            @AuthenticationPrincipal UserAuth userAuth) {
+        replyService.deleteReply(boardId, replyId, userAuth);
         return ResponseEntity.noContent().build();
     }
 }
