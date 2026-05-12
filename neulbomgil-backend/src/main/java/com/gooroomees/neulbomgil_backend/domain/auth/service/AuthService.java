@@ -1,8 +1,9 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.service;
 
-import ch.qos.logback.core.status.ErrorStatus;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoProfileResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.KakaoTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenRepository;
 import com.gooroomees.neulbomgil_backend.domain.auth.repository.RefreshTokenRepository;
@@ -49,6 +50,8 @@ public class AuthService {
 
     @Transactional
     public String register(RegisterRequest registerRequest) {
+        // 이메일 중복되면 처리안되도록
+
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -73,9 +76,19 @@ public class AuthService {
         }
 
         UserAuth user = userAuthService.findById(authToken.getUserId());
-        user.activate();
-        userAuthRepository.save(user);
-        authTokenRepository.delete(authToken);
+        if (authToken.getType() == TokenType.SIGNUP) {
+            user.activate();
+            userAuthRepository.save(user);
+            authTokenRepository.delete(authToken);
+        } else if (authToken.getType() == TokenType.PASSWORD_RESET) {
+            // UserAuth user = userAuthService.findById(authToken.getUserId());
+
+            // 비밀번호 교체 로직
+
+
+            userAuthRepository.save(user);
+            authTokenRepository.delete(authToken);
+        }
     }
 
     @Transactional
@@ -83,6 +96,7 @@ public class AuthService {
         UserAuth user = userAuthRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
         emailService.sendPasswordResetLink(user.getUserId());
+
     }
 
     @Transactional
@@ -183,6 +197,71 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    // 사용자 활성화
+    private boolean activateUser(UserAuth user) {
+        try {
+            user.activate();
+            userAuthRepository.save(user);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    // 사용자 변경
+    public boolean changeUser(UserAuth newUser) {
+        userAuthRepository.findById(newUser.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        try {
+            userAuthRepository.save(newUser);
+            return true;
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return false;
+        }
+    }
+
+    // 비밀번호 변경
+    public boolean changePassword(UserAuth user, PasswordChangeRequest request) {
+        try {
+            log.info("User : " + user);
+             userAuthRepository.findById(user.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getEmail(),
+                            request.getOldPassword()
+                    )
+            );
+
+            user.changePassword(passwordEncoder.encode(request.getNewPassword()));
+
+            userAuthRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return false;
+        }
+    }
+
+    // 사용자 삭제
+    public boolean deleteUser(Long userId) {
+        try {
+            UserAuth user = userAuthRepository.findById(userId).orElseThrow();
+            user.deleteUser();
+            userAuthRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return false;
+        }
+    }
+
 
     private KakaoTokenResponse requestToken(String accessCode) {
         RestTemplate restTemplate = new RestTemplate();

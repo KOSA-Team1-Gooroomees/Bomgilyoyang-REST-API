@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.auth.dto;
+package com.gooroomees.neulbomgil_backend.domain.auth.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
