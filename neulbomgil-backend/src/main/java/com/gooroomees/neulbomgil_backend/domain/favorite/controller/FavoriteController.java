@@ -32,6 +32,9 @@ public class FavoriteController {
         return ResponseEntity.ok(favoriteService.saveFavorite(userAuth.getUserId(), request));
     }
 
+    @Operation(
+            summary = "특정 사용자의 즐겨찾기 시설 조회"
+    )
     @GetMapping("/me")
     public ResponseEntity<List<FavoriteResponse>> getFavorites(
             @AuthenticationPrincipal UserAuth userAuth
