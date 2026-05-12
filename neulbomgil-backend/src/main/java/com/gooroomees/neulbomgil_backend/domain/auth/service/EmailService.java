@@ -71,7 +71,7 @@ public class EmailService {
         authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.PASSWORD_RESET));
 
         // 프론트엔드 주소로 보내는 것이 일반적이나, 현재는 백엔드 또는 로컬 확인용으로 설정
-        String resetLink = "http://localhost:8088/api/auth/password/verify?token=" + authToken;
+        String resetLink = "http://localhost:8088/api/auth/verify/password?token=" + authToken;
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();

@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.global.config;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,30 +27,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-//        if (request.getServletPath().contains("/api/auth")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-        String path = request.getServletPath();
-
-        if (path.startsWith("/api/auth")
-                || path.startsWith("/ws/")
-              ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String token = extractToken(request);
         String userEmail;
 
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             userEmail = jwtProvider.extractUsername(token);
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if (jwtProvider.isTokenValid(token, userDetails)) {
+            UserAuth user = (UserAuth) this.userDetailsService.loadUserByUsername(userEmail);
+            if (jwtProvider.isTokenValid(token, user)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
+                        user,
                         null,
-                        userDetails.getAuthorities()
+                        user.getAuthorities()
                 );
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)

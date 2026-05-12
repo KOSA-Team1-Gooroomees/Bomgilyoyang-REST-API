@@ -90,4 +90,8 @@ public class UserAuth implements UserDetails {
     public void changeStatus(Status status) {
         this.status = status;
     }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

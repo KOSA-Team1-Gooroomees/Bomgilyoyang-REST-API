@@ -1,12 +1,10 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.LoginRequest;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordResetRequest;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.PasswordUpdateRequest;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.RegisterRequest;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.CreateAccessTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.LoginResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.UserAuthService;
@@ -18,6 +16,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "인증 및 인가 관리", description = "회원 가입, 로그인, OAuth, 메일 인증용 API")
@@ -56,10 +56,11 @@ public class AuthController {
     }
 
     @Operation(summary = "비밀번호 초기화 메일 발송")
-    @PostMapping("/password/reset-email")
+    @PostMapping("/password/reset")
     public ResponseEntity<String> requestPasswordReset(@RequestBody PasswordResetRequest request) {
         try {
             authService.requestPasswordReset(request);
+
             return ResponseEntity.ok("비밀번호 초기화 메일이 발송되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -67,11 +68,14 @@ public class AuthController {
     }
 
     @Operation(summary = "비밀번호 재설정")
-    @PostMapping("/password/reset")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordUpdateRequest request) {
+    @PostMapping("/password/change")
+    public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserAuth user,
+                                                 @RequestBody PasswordChangeRequest request) {
         try {
-            authService.resetPassword(request);
-            return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+            if (authService.changePassword(user, request))
+                return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+            else
+                return ResponseEntity.badRequest().body("비밀번호 변경에 실패하였습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -113,9 +117,21 @@ public class AuthController {
                 .body(new CreateAccessTokenResponse(newAccessToken));
     }
 
-    @Operation(summary = "메일 인증")
+    @Operation(summary = "회원가입 인증")
     @GetMapping("/verify")
-    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<String> verifyRegisterEmail(@RequestParam("token") String token) {
+        try {
+            authService.verifyEmail(token);
+            return ResponseEntity.ok("이메일 인증이 완료되었습니다. 창을 닫고 로그인을 진행해주세요.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "비밀번호 초기화 인증")
+    @GetMapping("/verify/password")
+    public ResponseEntity<String> verifyPasswordEmail(@RequestParam("token") String token) {
         try {
             authService.verifyEmail(token);
             return ResponseEntity.ok("이메일 인증이 완료되었습니다. 창을 닫고 로그인을 진행해주세요.");
@@ -151,7 +167,7 @@ public class AuthController {
     @Operation(summary = "사용자 삭제")
     @GetMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam("id") Long userId) {
-        userAuthService.deleteUser(userId);
+        // userAuthService.deleteUser(userId);
 
         return ResponseEntity.ok("User Removed");
     }
