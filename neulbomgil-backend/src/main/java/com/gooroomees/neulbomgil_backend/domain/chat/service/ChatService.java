@@ -59,7 +59,7 @@ public class ChatService {
                     new ChatResponseDto(
                             chat.getChatId(),
                             roomId,
-                            userId,
+                            chat.getSender().getUserId(),
                             chat.getMessage(),
                             chat.getCreatedAt(),
                             chat.getReadAt()
