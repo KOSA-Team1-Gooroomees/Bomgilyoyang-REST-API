@@ -249,16 +249,18 @@ public class AuthService {
         }
     }
 
-    /*// 사용자 삭제
+    // 사용자 삭제
     public boolean deleteUser(Long userId) {
         try {
-            userAuthRepository.deleteById(userId);
+            UserAuth user = userAuthRepository.findById(userId).orElseThrow();
+            user.deleteUser();
+            userAuthRepository.save(user);
             return true;
         } catch (Exception e) {
             log.info(e.getMessage());
             return false;
         }
-    }*/
+    }
 
 
     private KakaoTokenResponse requestToken(String accessCode) {

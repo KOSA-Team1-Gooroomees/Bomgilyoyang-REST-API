@@ -166,8 +166,8 @@ public class AuthController {
 
     @Operation(summary = "사용자 삭제")
     @GetMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestParam("id") Long userId) {
-        // userAuthService.deleteUser(userId);
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserAuth user) {
+        authService.deleteUser(user.getUserId());
 
         return ResponseEntity.ok("User Removed");
     }
