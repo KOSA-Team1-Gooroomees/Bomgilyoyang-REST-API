@@ -37,15 +37,15 @@ public class AdminService {
             Long replyCount = replyRepository.countByUser(user);
 
             adminUserResponseDtoList.add(
-                    AdminUserResponseDto.builder()
-                            .userId(user.getUserId())
-                            .name(user.getName())
-                            .email(user.getEmail())
-                        .boardCount(boardCount)
-                        .replyCount(replyCount)
-                            .status(user.getStatus())
-                            .createdAt( user.getCreatedAt().format(formatter))
-                            .build()
+                    new AdminUserResponseDto(
+                            user.getUserId(),
+                            user.getName(),
+                            user.getEmail(),
+                            boardCount,
+                            replyCount,
+                            user.getStatus(),
+                            user.getCreatedAt().toString()
+                    )
             );
         }
 
@@ -64,15 +64,15 @@ public class AdminService {
             Long replyCount = replyRepository.countByUser(user);
 
             adminUserResponseDtoList.add(
-                    AdminUserResponseDto.builder()
-                            .userId(user.getUserId())
-                            .name(user.getName())
-                            .email(user.getEmail())
-                            .boardCount(boardCount)
-                            .replyCount(replyCount)
-                            .status(user.getStatus())
-                            .createdAt(user.getCreatedAt().format(formatter))
-                            .build()
+                    new AdminUserResponseDto(
+                            user.getUserId(),
+                            user.getName(),
+                            user.getEmail(),
+                            boardCount,
+                            replyCount,
+                            user.getStatus(),
+                            user.getCreatedAt().toString()
+                    )
             );
         }
 
