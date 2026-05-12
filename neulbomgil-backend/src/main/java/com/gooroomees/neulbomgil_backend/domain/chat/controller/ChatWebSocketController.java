@@ -1,5 +1,6 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.service.ChatService;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -19,10 +21,10 @@ public class ChatWebSocketController {
     //pub/chatrooms/{roomId}/messages
     @MessageMapping("/chatrooms/{roomId}/messages")
     public void sendMessage(
-            @DestinationVariable Long roomId,
+            @DestinationVariable Long roomId,@AuthenticationPrincipal UserAuth userAuth,
             ChatRequestDto requestDto
     ){
-        ChatResponseDto responseDto = chatService.saveMessage(roomId,requestDto);
+        ChatResponseDto responseDto = chatService.saveMessage(roomId,userAuth.getUserId(),requestDto);
 
         //클라이언트 SUBSCRIBE 주소:
         // /sub/chatRooms/{roomId}

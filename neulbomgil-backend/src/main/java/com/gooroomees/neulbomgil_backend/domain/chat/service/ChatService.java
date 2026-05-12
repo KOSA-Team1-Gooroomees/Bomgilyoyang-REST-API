@@ -40,28 +40,28 @@ public class ChatService {
                                 .build()
                 ));
 
-        return ChatRoomResponseDto.builder()
-                .roomId(chatRoom.getRoomId())
-                .userId(userId)
-                .lastMessageAt(chatRoom.getLastMessageAt())
-                .build();
+        return new ChatRoomResponseDto(
+                chatRoom.getRoomId(),
+               userId,
+               chatRoom.getLastMessageAt()
+        );
+
     }
 
-    public List<ChatResponseDto> getMessageByRoomId(Long roomId) {
+    public List<ChatResponseDto> getMessageByRoomId(Long roomId,Long userId) {
         List<Chat> chats = chatRepository.FindMessagesByRoomId(roomId);
         List<ChatResponseDto> chatResponseDtoList = new ArrayList<>();
 
         for (Chat chat : chats) {
-
             chatResponseDtoList.add(
-                    ChatResponseDto.builder()
-                            .chatId(chat.getChatId())
-                            .roomId(chat.getChatRoom().getRoomId())
-                            .senderId(chat.getSender().getUserId())
-                            .message(chat.getMessage())
-                            .createdAt(chat.getCreatedAt())
-                            .readAt(chat.getReadAt())
-                            .build()
+                    new ChatResponseDto(
+                            chat.getChatId(),
+                            roomId,
+                            userId,
+                            chat.getMessage(),
+                            chat.getCreatedAt(),
+                            chat.getReadAt()
+                    )
             );
         }
 
@@ -76,41 +76,41 @@ public class ChatService {
 
         for (ChatRoom room : rooms) {
             chatRoomResponseDto.add(
-            ChatRoomResponseDto.builder()
-                    .roomId(room.getRoomId())
-                    .userId(room.getUser().getUserId())
-                    .lastMessageAt(room.getLastMessageAt())
-                    .build()
+                    new ChatRoomResponseDto(
+                            room.getRoomId(),
+                            room.getUser().getUserId(),
+                            room.getLastMessageAt()
+                    )
                   );
         }
 
         return chatRoomResponseDto;
     }
 
-    public ChatResponseDto saveMessage(Long roomId, ChatRequestDto requestDto) {
+    public ChatResponseDto saveMessage(Long roomId, Long userId, ChatRequestDto requestDto) {
 
         ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("채팅방이 없습니다."));;
 
-        UserAuth sender = userAuthRepository.findById(requestDto.getSenderId())
+        UserAuth sender = userAuthRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));
 
         Chat chat = Chat.create(
                 room,
                 sender,
-                requestDto.getMessage()
+                requestDto.message()
         );
 
         Chat savedChat = chatRepository.save(chat);
 
 
-        return ChatResponseDto.builder()
-                .chatId(savedChat.getChatId())
-                .roomId(roomId)
-                .senderId(sender.getUserId())
-                .message(savedChat.getMessage())
-                .createdAt(savedChat.getCreatedAt())
-                .readAt(savedChat.getReadAt())
-                .build();
+        return new ChatResponseDto(
+                savedChat.getChatId(),
+                roomId,
+                userId,
+                savedChat.getMessage(),
+                savedChat.getCreatedAt(),
+                savedChat.getReadAt()
+        );
     }
     @Transactional
     public void readMessages(Long roomId,Long senderId) {

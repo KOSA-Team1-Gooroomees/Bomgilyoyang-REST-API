@@ -4,13 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-public class ChatRequestDto {
 
-
-
-    private Long senderId;
-
-    private String message;
+public record ChatRequestDto(
+        String message
+) {
 }

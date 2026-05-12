@@ -1,10 +1,12 @@
 package com.gooroomees.neulbomgil_backend.domain.chat.controller;
 
+import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRoomResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,13 +19,13 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/start")
-    public ChatRoomResponseDto startChatRoom(@RequestParam Long userId) {
-        return chatService.startChatRoom(userId);
+    public ChatRoomResponseDto startChatRoom(@AuthenticationPrincipal UserAuth userAuth) {
+        return chatService.startChatRoom(userAuth.getUserId());
     }
 
     @GetMapping("/{roomId}/message")
-    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId) {
-        return chatService.getMessageByRoomId(roomId);
+    public List<ChatResponseDto> getMessagesByRoomId(@PathVariable Long roomId,@AuthenticationPrincipal UserAuth userAuth) {
+        return chatService.getMessageByRoomId(roomId,userAuth.getUserId());
     }
 
     @GetMapping("/admin")
@@ -32,18 +34,19 @@ public class ChatController {
     }
 
     @PostMapping("/{roomId}/message")
-    public ChatResponseDto sendMessage(@PathVariable Long roomId, @RequestBody ChatRequestDto requestDto) {
-        return chatService.saveMessage(roomId, requestDto);
+    public ChatResponseDto sendMessage(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth,
+                                       @RequestBody ChatRequestDto requestDto) {
+        return chatService.saveMessage(roomId,userAuth.getUserId(), requestDto);
     }
 
     @PutMapping("/{roomId}/read")
-    public void readMessages(@PathVariable Long roomId, @RequestParam Long userId) {
-        chatService.readMessages(roomId, userId);
+    public void readMessages(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth) {
+        chatService.readMessages(roomId, userAuth.getUserId());
     }
 
     @GetMapping("/unread")
-    public boolean hasUnreadChats(@RequestParam Long userId) {
-       return chatService.hasUnreadChats(userId);
+    public boolean hasUnreadChats(@AuthenticationPrincipal UserAuth userAuth) {
+       return chatService.hasUnreadChats(userAuth.getUserId());
     }
 
 }
