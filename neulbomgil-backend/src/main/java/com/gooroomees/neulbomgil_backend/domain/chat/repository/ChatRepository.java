@@ -41,6 +41,5 @@ and c.readAt is null
 """)
 boolean existsUnreadChatByUserId(@Param("userId") Long userId);
 
-    Optional<Chat> findTopByChatRoom_RoomIdOrderByCreatedAtDesc(Long roomId);
 
 }

@@ -71,35 +71,13 @@ public class ChatService {
     }
 
     public List<ChatRoomResponseDto> getAllChatRooms() {
-        List<ChatRoom> rooms =
-                chatRoomRepository.findAllByOrderByLastMessageAtDesc();
 
-        List<ChatRoomResponseDto> chatRoomResponseDto = new ArrayList<>();
 
-        for (ChatRoom room : rooms) {
-            UserAuth user = room.getUser();
+        List<ChatRoomResponseDto> result =
+                chatRoomRepository.findAllChatRoomResponses();
 
-            Chat latestChat = chatRepository
-                    .findTopByChatRoom_RoomIdOrderByCreatedAtDesc(room.getRoomId())
-                    .orElse(null);
 
-            String lastMessage = null;
-
-            if (latestChat != null) {
-                lastMessage = latestChat.getMessage();
-            }
-            chatRoomResponseDto.add(
-                    new ChatRoomResponseDto(
-                            room.getRoomId(),
-                            user.getUserId(),
-                            user.getName(),
-                            lastMessage,
-                            room.getLastMessageAt()
-                    )
-            );
-        }
-
-        return chatRoomResponseDto;
+        return result;
     }
 
     public ChatResponseDto saveMessage(Long roomId, Long userId, ChatRequestDto requestDto) {
