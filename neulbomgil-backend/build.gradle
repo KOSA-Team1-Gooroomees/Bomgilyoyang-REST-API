@@ -23,6 +23,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
@@ -60,4 +62,20 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
     environment System.getenv()
+}
+
+// Tailwind
+tasks.register('buildTailwind', Exec) {
+    group = 'build'
+    description = 'Builds Tailwind CSS v4'
+
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine 'npx.cmd', '@tailwindcss/cli', '-i', './src/main/resources/static/css/input.css', '-o', './src/main/resources/static/css/main.css'
+    } else {
+        commandLine 'npx', '@tailwindcss/cli', '-i', './src/main/resources/static/css/input.css', '-o', './src/main/resources/static/css/main.css'
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn tasks.named('buildTailwind')
 }
