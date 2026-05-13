@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.map.controller;
+package com.gooroomees.neulbomgil_backend.domain.map.controller.api;
 
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.FacilitySearchRequest;
 import com.gooroomees.neulbomgil_backend.domain.map.dto.request.MarkerRequest;
