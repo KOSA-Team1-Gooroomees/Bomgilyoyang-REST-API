@@ -51,3 +51,7 @@ out/
 ### QueryDSL QClass folders ###
 /build/generated/
 /src/main/generated/
+
+### Node.js ###
+/node_modules/
+/package-lock.json
