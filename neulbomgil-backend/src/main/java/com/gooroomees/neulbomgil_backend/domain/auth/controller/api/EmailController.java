@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.auth.controller;
+package com.gooroomees.neulbomgil_backend.domain.auth.controller.api;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
 import lombok.RequiredArgsConstructor;

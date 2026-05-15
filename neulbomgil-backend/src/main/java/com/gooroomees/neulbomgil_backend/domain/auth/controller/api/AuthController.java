@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.auth.controller;
+package com.gooroomees.neulbomgil_backend.domain.auth.controller.api;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.CreateAccessTokenResponse;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
