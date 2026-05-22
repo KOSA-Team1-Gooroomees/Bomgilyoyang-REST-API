@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>늘봄길 - 로그인</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link th:href="@{/css/main.css}" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -34,14 +34,14 @@
             <span>늘봄길</span>
         </div>
 
-        <img src="/images/mascot.png" alt="늘봄길 캐릭터" class="absolute -top-6 -right-4 w-28 h-auto z-20">
+        <!-- <img src="/images/mascot.png" alt="늘봄길 캐릭터" class="absolute -top-6 -right-4 w-28 h-auto z-20"> -->
 
         <h1 class="text-3xl font-bold text-[#1F3D2D] mb-2 tracking-tight">로그인</h1>
         <p class="text-gray-500 text-sm">늘봄길에 오신 것을 환영합니다</p>
     </div>
 
     <div class="bg-white rounded-[20px] shadow-lg p-6 relative z-10">
-        <form th:action="@{/login}" method="post">
+        <form th:action="@{/api/auth/login}" method="post">
 
             <div class="relative mb-3">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -49,7 +49,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <input type="email" name="username" placeholder="이메일을 입력하세요"
+                <input type="email" name="email" placeholder="이메일을 입력하세요"
                        class="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm text-gray-700 placeholder-gray-400 bg-gray-50/50" required>
             </div>
 
@@ -70,7 +70,7 @@
                 </button>
             </div>
 
-            <button type="submit" class="w-full bg-brand-green hover:bg-brand-greenHover text-white font-medium py-3.5 rounded-xl transition-colors duration-200">
+            <button type="submit" class="bg-primary hover:bg-primary-hover text-white px-5 py-2 rounded-full transition">
                 로그인
             </button>
         </form>

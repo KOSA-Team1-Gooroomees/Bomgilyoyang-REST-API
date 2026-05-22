@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
 @Tag(name = "인증 및 인가 관리", description = "회원 가입, 로그인, OAuth, 메일 인증용 API")
 @RestController
 @RequiredArgsConstructor
@@ -36,19 +38,29 @@ public class AuthController {
 
     @Operation(summary = "일반 로그인")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> login(@ModelAttribute LoginRequest request, HttpServletResponse response) {
         JwtTokenResponse jwtTokenResponse = authService.login(request);
 
-        // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
+        // 액세스 토큰을 HttpOnly 쿠키에 저장
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
                 .httpOnly(true)
                 .secure(true) // HTTPS 환경 권장
-                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
-                .maxAge(604800000)
+                .path("/") // 갱신 경로에서만 쿠키 전송
+                .maxAge(Duration.ofMinutes(30))
                 .sameSite("Strict")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        // 리프레시 토큰을 HttpOnly 쿠키에 저장
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtTokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경 권장
+                .path("/") // 갱신 경로에서만 쿠키 전송
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
