@@ -7,14 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:///Users/shinjaewouk/Desktop/Projects/Neulbomgil/neulbomgil-backend/src/main/resources/images/")
-                .setCachePeriod(0);
-    }
-
+    
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
