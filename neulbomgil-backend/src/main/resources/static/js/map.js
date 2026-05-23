@@ -355,21 +355,19 @@ async function fetchNearbyParks(facilityId) {
 
 // 8. 즐겨찾기 비동기 통신 로직 및 이벤트 리스너 통합
 async function checkFavoriteStatus(facilityId) {
-    const favoriteBtn = document.getElementById('favoriteBtn');
-    // 로컬 스토리지에 토큰이 없으면 리턴
-    if (!localStorage.getItem('accessToken')) return;
-
     try {
-        const response = await fetch('/api/favorites/me', {
-            headers: {'Authorization': `Bearer ${localStorage.getItem('accessToken')}`}
-        });
+        const response = await fetch('/api/favorites/me');
+
         if (response.ok) {
             const favorites = await response.json();
-            isFavoriteState = favorites.some(fav => fav.facilityId === facilityId);
+            isFavoriteState = favorites.some(fav => String(fav.facilityId) === String(facilityId));
             toggleFavoriteBtnStyle(isFavoriteState);
+        } else if (response.status === 401) {
+            isFavoriteState = false;
+            toggleFavoriteBtnStyle(false);
         }
     } catch (err) {
-        console.error(err);
+        console.error("즐겨찾기 상태 조회 오류:", err);
     }
 }
 
@@ -412,11 +410,6 @@ function initEventListeners() {
 
     // 즐겨찾기 버튼 클릭 액션 인터랙션
     document.getElementById('favoriteBtn').addEventListener('click', async () => {
-        if (!localStorage.getItem('accessToken')) {
-            alert("즐겨찾기 기능은 로그인 후 이용 가능합니다.");
-            return;
-        }
-
         const method = isFavoriteState ? 'DELETE' : 'POST';
         const url = '/api/favorites' + (isFavoriteState ? '/me' : '');
         const body = JSON.stringify({facilityId: selectedFacilityId});
@@ -425,8 +418,7 @@ function initEventListeners() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    'Content-Type': 'application/json'
                 },
                 body: body
             });
@@ -434,9 +426,15 @@ function initEventListeners() {
             if (response.ok) {
                 isFavoriteState = !isFavoriteState;
                 toggleFavoriteBtnStyle(isFavoriteState);
+            } else if (response.status === 401) {
+                alert("즐겨찾기 기능은 로그인 후 이용 가능합니다.");
+                window.location.href = '/login';
+            } else {
+                alert("즐겨찾기 처리 중 오류가 발생했습니다.");
             }
         } catch (err) {
-            alert("즐겨찾기 처리 중 오류 발생");
+            console.error(err);
+            alert("즐겨찾기 처리 중 에러 발생");
         }
     });
 }
