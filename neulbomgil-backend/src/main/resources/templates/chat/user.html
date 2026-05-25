@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>늘봄길 커뮤니티</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f6f8f4;
+            font-family: var(--font-eulyoo);
+            color: #222;
+        }
+
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 58px);
+        }
+
+        .left-area {
+            width: 280px;
+            padding: 28px 24px;
+            background: #f6f8f4;
+            flex-shrink: 0;
+        }
+
+        .community-card {
+            width: 100%;
+            height: 230px;
+            padding: 28px 24px;
+            border-radius: 12px;
+            background: #a9cbaa;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .chat-button-wrapper{
+            position:relative;
+            display:inline-block;
+        }
+
+        .chat-unread-dot{
+            position:absolute;
+
+            top:-4px;
+            right:-4px;
+
+            width:12px;
+            height:12px;
+
+            border-radius:50%;
+
+            background-color:#d46352;
+        }
+        .community-card h2 {
+            margin: 0 0 24px;
+            font-size: 24px;
+        }
+
+        .community-card p {
+            margin: 0;
+            line-height: 1.8;
+            letter-spacing: 4px;
+            font-size: 14px;
+        }
+
+        .mascot {
+            position: absolute;
+            right: 16px;
+            bottom: 28px;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: #fff7e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+        }
+
+        .write-btn {
+            width: 200px;
+            height: 54px;
+            margin: 24px auto 56px;
+            border: none;
+            border-radius: 18px;
+            background: #287642;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .help-card {
+            width: 100%;
+            padding: 24px 18px;
+            border: 2px solid #bdd2dc;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 3px 4px rgba(0,0,0,0.18);
+        }
+
+        .help-card h3 {
+            margin: 0 0 16px;
+            font-size: 18px;
+        }
+
+        .help-card p {
+            margin: 0 0 22px;
+            line-height: 1.6;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .chat-open-btn {
+            width: 170px;
+            height: 44px;
+            margin: 0 auto;
+            display: block;
+            border: none;
+            border-radius: 14px;
+            background: #79a9ba;
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .chat-panel {
+            width: 270px;
+            min-height: calc(100vh - 58px);
+            background: #bdd2dc;
+            border-left: 1px solid #d7e3e7;
+            border-right: 1px solid #d7e3e7;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .chat-panel.open {
+            display: block;
+        }
+
+        .chat-panel-header {
+            height: 54px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+        }
+
+        .chat-close-btn {
+            border: none;
+            background: transparent;
+            font-size: 34px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .chat-frame {
+            width: 100%;
+            height: calc(100vh - 112px);
+            border: none;
+            background: #bdd2dc;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 36px 40px;
+            background: white;
+        }
+
+        .board-placeholder {
+            width: 100%;
+            height: 480px;
+            border-radius: 12px;
+            background: #fafafa;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="layout">
+        <aside class="left-area">
+            <section class="community-card">
+                <h2>늘봄길 커뮤니티</h2>
+                <p>
+                    시설 이용 정보와<br>
+                    다양한 소식을<br>
+                    함께 나눠요.
+                </p>
+                <div class="mascot">🐑</div>
+            </section>
+
+            <button type="button" class="write-btn">
+                ✎ 글쓰기
+            </button>
+
+            <section class="help-card">
+                <h3>도움이 필요하신가요?</h3>
+                <p>
+                    관리자와 1:1 채팅으로<br>
+                    빠르게 문의해보세요.
+                </p>
+                <div class="chat-button-wrapper">
+
+                    <button
+                            type="button"
+                            id="chatOpenBtn"
+                            class="chat-open-btn">
+
+                        채팅하기
+                    </button>
+
+                    <div
+                            id="chatUnreadDot"
+                            class="chat-unread-dot"
+                            style="display:none;">
+                    </div>
+
+                </div>
+            </section>
+        </aside>
+
+        <section id="chatPanel" class="chat-panel">
+            <div class="chat-panel-header">
+                <span>관리자</span>
+                <button type="button" id="chatCloseBtn" class="chat-close-btn">×</button>
+            </div>
+
+            <iframe id="chatFrame" class="chat-frame"></iframe>
+        </section>
+
+        <section class="content-area">
+            <div class="board-placeholder">
+                게시판 영역
+            </div>
+        </section>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+
+<script>
+    const chatOpenBtn = document.getElementById("chatOpenBtn");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+    const chatPanel = document.getElementById("chatPanel");
+    const chatFrame = document.getElementById("chatFrame");
+
+
+    chatOpenBtn.addEventListener("click", async () =>  {
+
+
+        /*
+       로그인 여부 확인
+   */
+        const authCheck = await fetch("/chatrooms/unread");
+
+        /*
+            토큰 만료 / 인증 실패
+        */
+        if(authCheck.status === 401){
+
+            alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+
+            window.location.href = "/login";
+
+            return;
+        }
+
+        /*
+            채팅창 열기
+        */
+        chatPanel.classList.add("open");
+
+        /*
+            unread 점 제거
+        */
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(unreadDot){
+            unreadDot.style.display = "none";
+        }
+        if (!chatFrame.src) {
+            chatFrame.src = "/chatrooms/start";
+        }
+    });
+
+    chatCloseBtn.addEventListener("click", () => {
+        chatPanel.classList.remove("open");
+    });
+
+    async function checkUnreadChat(){
+
+        const response = await fetch("/chatrooms/unread");
+
+        const hasUnread = await response.json();
+
+        const unreadDot =
+            document.getElementById("chatUnreadDot");
+
+        if(hasUnread){
+            unreadDot.style.display = "block";
+        }else{
+            unreadDot.style.display = "none";
+        }
+    }
+
+
+
+
+</script>
+
+</body>
+</html>

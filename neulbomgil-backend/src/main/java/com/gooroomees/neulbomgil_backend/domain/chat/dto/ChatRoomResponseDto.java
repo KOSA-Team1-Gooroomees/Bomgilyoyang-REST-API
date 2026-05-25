@@ -8,6 +8,8 @@ public record ChatRoomResponseDto(
         Long userId,
         String name,
         String lastMessage,
-        LocalDateTime lastMessageAt
+        LocalDateTime lastMessageAt,
+        boolean unread
+
 ) {
 }
