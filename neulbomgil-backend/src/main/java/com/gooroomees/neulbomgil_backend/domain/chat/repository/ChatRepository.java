@@ -15,7 +15,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
             select c
             from Chat c
             where c.chatRoom.roomId = :roomId
-            order by c.createdAt desc
+            order by c.createdAt asc
             """)
     List<Chat> FindMessagesByRoomId(@Param("roomId") Long roomId);
 

@@ -1,4 +1,4 @@
-package com.gooroomees.neulbomgil_backend.domain.chat.controller;
+package com.gooroomees.neulbomgil_backend.domain.chat.controller.api;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.chat.dto.ChatRequestDto;
@@ -48,15 +48,15 @@ public class ChatController {
         return chatService.getAllChatRooms();
     }
 
-    @Operation(
-            summary = "채팅 메시지 전송",
-            description = "특정 채팅방에 메시지를 저장합니다."
-    )
-    @PostMapping("/{roomId}/message")
-    public ChatResponseDto sendMessage(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth,
-                                       @RequestBody ChatRequestDto requestDto) {
-        return chatService.saveMessage(roomId,userAuth.getUserId(), requestDto);
-    }
+//    @Operation(
+//            summary = "채팅 메시지 전송",
+//            description = "특정 채팅방에 메시지를 저장합니다."
+//    )
+//    @PostMapping("/{roomId}/message")
+//    public ChatResponseDto sendMessage(@PathVariable Long roomId, @AuthenticationPrincipal UserAuth userAuth,
+//                                       @RequestBody ChatRequestDto requestDto) {
+//        return chatService.saveMessage(roomId,userAuth.getUserId(), requestDto);
+//    }
 
     @Operation(
             summary = "채팅 읽음 처리",
