@@ -4,7 +4,10 @@ import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardRequestDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.dto.BoardResponseDTO;
 import com.gooroomees.neulbomgil_backend.domain.board.entity.Board;
+import com.gooroomees.neulbomgil_backend.domain.board.entity.BoardLike;
+import com.gooroomees.neulbomgil_backend.domain.board.repository.BoardLikeRepository;
 import com.gooroomees.neulbomgil_backend.domain.board.repository.BoardRepository;
+import com.gooroomees.neulbomgil_backend.domain.reply.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,54 +16,69 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardLikeRepository boardLikeRepository;
+    private final ReplyRepository replyRepository;   // 댓글 수 조회용
     private static final int PAGE_SIZE = 15;
 
     //게시글 없으면 예외처리
+    // 게시글 존재 여부 확인
     private Board findBoard(Long boardId){
         return boardRepository.findById(boardId)
                 .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+    }
+
+    // 댓글 수를 포함한 BoardResponse 변환
+    private BoardResponseDTO toResponse(Board board) {
+        long replyCount = replyRepository.countByBoard(board);
+        return new BoardResponseDTO(board, replyCount);
     }
 
     // 최신순 (디폴트)
     public Page<BoardResponseDTO> getAllBoards(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
         return boardRepository.findAll(pageable)
-                .map(BoardResponseDTO::new);
+                .map(this::toResponse); //.map(BoardResponseDTO::new);
     }
 
     // 조회수 높은순
     public Page<BoardResponseDTO> getBoardsByViews(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("cnt").descending());
         return boardRepository.findAll(pageable)
-                .map(BoardResponseDTO::new);
+                .map(this::toResponse); //.map(BoardResponseDTO::new);
     }
-    //댓글 많은순
-    public Page<BoardResponseDTO> getBoardsReplyCount(int page){
+    // 댓글 많은순
+    public Page<BoardResponseDTO> getBoardsReplyCount(int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        return boardRepository.findAllOrderByReplyCount(pageable)
-                .map(BoardResponseDTO::new);
+        return boardRepository.findAllOrderByReplyCount(pageable).map(this::toResponse);
     }
-
-    // 상세 글 클릭 + 조회수 증가
+    // 상세 조회 + 조회수 증가
     @Transactional
-    public BoardResponseDTO getOneBoard(Long boardId) {
+    public BoardResponseDTO getOneBoard(Long boardId, UserAuth userAuth) {
         Board board = findBoard(boardId);
         board.increaseCnt();
-        return new BoardResponseDTO(board);
+        long replyCount = replyRepository.countByBoard(board);
+
+        // 로그인한 경우에만 좋아요 여부 확인
+        boolean likedByMe = (userAuth != null)
+                && boardLikeRepository.existsByBoardAndUser(board, userAuth);
+
+        return new BoardResponseDTO(board, replyCount, likedByMe);
     }
 
     //검색어 입력, 관련 글 가져오기
+    // 검색
     public Page<BoardResponseDTO> searchBoard(String keyword, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return boardRepository.findByTitleContainingOrContentContaining(
-                        keyword, keyword, pageable)
-                .map(BoardResponseDTO::new);
+        return boardRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+                .map(this::toResponse);
     }
 
     // 글 작성
@@ -84,5 +102,23 @@ public class BoardService {
         Board board = findBoard(boardId);
         board.validateOwner(userAuth);
         boardRepository.deleteById(boardId);
+    }
+    // 좋아요 토글 (눌렀으면 취소, 안 눌렀으면 추가)
+    @Transactional
+    public boolean toggleLike(Long boardId, UserAuth userAuth) {
+        Board board = findBoard(boardId);
+        Optional<BoardLike> existing = boardLikeRepository.findByBoardAndUser(board, userAuth);
+
+        if (existing.isPresent()) {
+            // 이미 좋아요 → 취소
+            boardLikeRepository.delete(existing.get());
+            board.decreaseLikeCnt();
+            return false; // 좋아요 취소됨
+        } else {
+            // 좋아요 추가
+            boardLikeRepository.save(BoardLike.create(board, userAuth));
+            board.increaseLikeCnt();
+            return true; // 좋아요 추가됨
+        }
     }
 }
