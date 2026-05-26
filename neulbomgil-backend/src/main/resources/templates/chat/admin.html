@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 채팅</title>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
+    <style>
+
+        *{
+            box-sizing: border-box;
+        }
+
+        body{
+            margin:0;
+            background-color:#f5f5f5;
+            font-family: var(--font-eulyoo);
+        }
+
+        .page {
+            width: 100%;
+            height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-container {
+            width: 100%;
+            height: calc(100vh - 58px);
+
+            display: flex;
+
+            background-color: #ffffff;
+        }
+
+        /*
+            =========================
+            왼쪽 채팅방 목록 영역
+            =========================
+        */
+
+        .chat-room-list{
+            width:300px;
+            height:100vh;
+
+            background-color:#f6faf4;
+
+            border-right:1px solid #dcdcdc;
+
+            display:flex;
+            flex-direction:column;
+        }
+
+
+
+        .search-area{
+            padding:10px;
+
+            background-color:#ffffff;
+
+            border-bottom:1px solid #e5e5e5;
+        }
+
+        .search-area input{
+            width:100%;
+            height:36px;
+
+            border:1px solid #dcdcdc;
+            border-radius:8px;
+
+            padding:0 12px;
+        }
+
+        .room-list{
+            flex:1;
+
+            overflow-y:auto;
+        }
+
+        .room-item{
+            width:100%;
+
+            border:none;
+
+            background-color:#b5d0ac;
+
+            padding:12px;
+
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+
+            cursor:pointer;
+
+            border-bottom:1px solid rgba(255,255,255,0.6);
+
+            text-align:left;
+        }
+
+        .room-item:hover{
+            background-color:#9fbe95;
+        }
+
+        .room-profile{
+            width:40px;
+            height:40px;
+
+            border-radius:50%;
+
+            object-fit:cover;
+
+            flex-shrink:0;
+        }
+
+        .room-info{
+            flex:1;
+
+            min-width:0;
+
+
+        }
+
+        .room-top{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:4px;
+        }
+
+        .room-name{
+            font-size:14px;
+            font-weight:bold;
+        }
+
+        .room-time{
+            font-size:11px;
+            color:#333333;
+        }
+
+        .room-message{
+            font-size:12px;
+
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .unread-dot{
+            width:10px;
+            height:10px;
+
+            border-radius:50%;
+
+            background-color:#d46352;
+
+            flex-shrink:0;
+        }
+
+        /*
+            =========================
+            채팅 영역
+            =========================
+        */
+
+        .chat-area {
+            width: 350px;
+            height: 100vh;
+
+            background-color: #bdd2dc;
+            border-right: 1px solid #dcdcdc;
+
+            display: none;
+            flex-direction: column;
+        }
+
+        .chat-area.open {
+            display: flex;
+        }
+
+        .chat-header{
+            height:70px;
+
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+
+            padding:0 20px;
+
+            border-bottom:1px solid rgba(0,0,0,0.15);
+        }
+
+        .chat-title{
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .close-button{
+            border:none;
+            background:none;
+
+            font-size:42px;
+
+            cursor:pointer;
+        }
+
+        .chat-empty{
+            flex:1;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            color:rgba(0,0,0,0.4);
+
+            font-size:18px;
+            font-weight:bold;
+        }
+
+        .chat-frame{
+            width:100%;
+            flex:1;
+
+            border:none;
+
+            display:none;
+        }
+
+        /*
+            =========================
+            오른쪽 관리자 영역
+            =========================
+        */
+
+        .content-area{
+            flex:1;
+
+            background-color:#ffffff;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .content-text{
+            color:#c0c0c0;
+
+            font-size:32px;
+            font-weight:bold;
+        }
+
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- 로고 -->
+    <div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-container">
+
+    <!-- =========================
+         왼쪽 채팅방 목록
+    ========================== -->
+
+    <section class="chat-room-list">
+
+        <!-- 검색 -->
+        <div class="search-area">
+            <input type="text" placeholder="이름 또는 연락처 검색">
+        </div>
+
+        <!-- 채팅방 목록 -->
+        <div class="room-list">
+
+            <button
+                    type="button"
+                    class="room-item"
+
+                    th:each="room : ${chatRooms}"
+
+                    th:data-room-id="${room.roomId()}"
+                    th:data-room-name="${room.name()}"
+
+                    onclick="openChatRoom(this)">
+
+                <!-- 프로필 -->
+                <img
+                        th:src="@{/images/characters/rumi-face.png}"
+                        class="room-profile"
+                        alt="프로필">
+
+                <!-- 정보 -->
+                <div class="room-info">
+
+                    <div class="room-top">
+
+                        <div
+                                class="room-name"
+                                th:text="${room.name()}">
+                            사용자
+                        </div>
+
+                        <div
+                                class="room-time"
+
+                                th:text="${room.lastMessageAt() != null
+                                ? #temporals.format(room.lastMessageAt(), 'HH:mm')
+                                : ''}">
+                            14:35
+                        </div>
+
+                    </div>
+
+                    <div
+                            class="room-message"
+
+                            th:text="${room.lastMessage() != null
+                            ? room.lastMessage()
+                            : '새로운 문의가 있습니다.'}">
+                        마지막 메시지
+                    </div>
+
+                </div>
+
+                <!-- 읽지 않음 표시 -->
+                <div th:if="${room.unread()}" class="unread-dot"></div>
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- =========================
+         가운데 채팅창
+    ========================== -->
+
+    <section class="chat-area">
+
+        <div class="chat-header">
+
+            <div
+                    id="chatTitle"
+                    class="chat-title">
+                관리자
+            </div>
+
+            <button
+                    type="button"
+                    class="close-button"
+                    onclick="closeChatRoom()">
+                ×
+            </button>
+
+        </div>
+
+        <!-- 처음 빈 화면 -->
+        <div
+                id="chatEmpty"
+                class="chat-empty">
+
+            채팅방을 선택해주세요.
+
+        </div>
+
+        <!-- 실제 채팅 iframe -->
+        <iframe
+                id="chatFrame"
+                class="chat-frame"
+                src="about:blank">
+        </iframe>
+
+    </section>
+
+    <!-- =========================
+         오른쪽 관리자 페이지 영역
+    ========================== -->
+
+    <section class="content-area">
+
+        <div class="content-text">
+            관리자 페이지 영역
+        </div>
+
+    </section>
+
+</div>
+</div>
+<script>
+    const chatArea = document.querySelector(".chat-area");
+    /*
+        iframe 요소
+    */
+    const chatFrame = document.getElementById("chatFrame");
+
+    /*
+        빈 화면 요소
+    */
+    const chatEmpty = document.getElementById("chatEmpty");
+
+    /*
+        상단 제목 요소
+    */
+    const chatTitle = document.getElementById("chatTitle");
+
+    /*
+        채팅방 열기
+    */
+    function openChatRoom(element){
+
+        const roomId = element.dataset.roomId;
+        const roomName = element.dataset.roomName;
+
+        chatArea.classList.add("open");
+
+        chatTitle.textContent = roomName;
+
+        chatEmpty.style.display = "none";
+
+        chatFrame.style.display = "block";
+
+        chatFrame.src = "/chatrooms/" + roomId + "/message";
+
+
+
+        const unreadDot = element.querySelector(".unread-dot");
+
+        if(unreadDot){
+            unreadDot.style.display = "none";
+        }
+    }
+
+    /*
+        채팅창 닫기
+    */
+    function closeChatRoom(){
+
+        /*
+            iframe 제거
+        */
+        chatFrame.src = "about:blank";
+
+        /*
+            iframe 숨김
+        */
+        chatFrame.style.display = "none";
+
+        /*
+            빈 화면 표시
+        */
+        chatEmpty.style.display = "flex";
+
+        /*
+            제목 초기화
+        */
+        chatTitle.textContent = "관리자";
+
+        /*
+            채팅 영역 닫기
+        */
+        chatArea.classList.remove("open");
+    }
+
+</script>
+
+</body>
+</html>

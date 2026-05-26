@@ -45,7 +45,8 @@ public class ChatService {
                 user.getUserId(),
                 user.getName(),
                 null,
-                null
+                null,
+                false
         );
 
     }
@@ -80,6 +81,7 @@ public class ChatService {
         return result;
     }
 
+    @Transactional
     public ChatResponseDto saveMessage(Long roomId, Long userId, ChatRequestDto requestDto) {
 
         ChatRoom room = chatRoomRepository.findById(roomId).orElseThrow(() -> new RuntimeException("채팅방이 없습니다."));;
@@ -95,6 +97,7 @@ public class ChatService {
 
         Chat savedChat = chatRepository.save(chat);
 
+        room.updateLastMessageAt();
 
         return new ChatResponseDto(
                 savedChat.getChatId(),
@@ -112,5 +115,10 @@ public class ChatService {
 
     public boolean hasUnreadChats(Long userId) {
        return chatRepository.existsUnreadChatByUserId(userId);
+    }
+    public ChatRoomResponseDto getChatRoom(Long roomId) {
+
+        return chatRoomRepository.findChatRoomResponse(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방 없음"));
     }
 }
