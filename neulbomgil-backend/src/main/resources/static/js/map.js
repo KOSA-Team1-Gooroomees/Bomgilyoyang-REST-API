@@ -211,31 +211,51 @@ async function fetchFacilities(isFirstLoad = false) {
 
 // 5. 컴포넌트 HTML 생성
 function createFacilityItemHtml(item) {
-    const stars = '★'.repeat(item.facilityScore || 0) + '☆'.repeat(5 - (item.facilityScore || 0));
+    const score = item.facilityScore || 0;
+    const icons =
+        Array(score).fill('<img src="/images/icons/score-true.png" alt="추천별" class="w-7 h-7 object-contain border border-transparent rounded-full">').join('') +
+        Array(5 - score).fill('<img src="/images/icons/score-false.png" alt="빈별" class="w-7 h-7 object-contain rounded-full">').join('');
+
+    const isSelected = selectedFacilityId === String(item.id);
+    const bgClass = isSelected ? 'bg-bg-soft border-green-400' : 'bg-white border-gray-100 hover:border-blue-200';
+
     return `
-        <div onclick="handleOpenDetail('${item.id}', new kakao.maps.LatLng(${item.latitude}, ${item.longitude}))" 
-             class="p-4 rounded-2xl border border-gray-100 bg-white hover:border-blue-200 shadow-sm transition-all cursor-pointer group flex gap-4">
-            <div class="w-20 h-20 shrink-0 overflow-hidden rounded-xl bg-gray-100 border border-gray-50">
-                <img src="/images/${item.facilityImage}" alt="${item.facilityName}" class="w-full h-full object-cover transition-transform group-hover:scale-110" />
+    <div onclick="handleOpenDetail('${item.id}', new kakao.maps.LatLng(${item.latitude}, ${item.longitude}))" 
+         data-id="${item.id}"
+         class="facility-item p-4 rounded-2xl border ${bgClass} shadow-sm transition-all cursor-pointer group flex gap-4">
+        <div class="w-20 h-20 shrink-0 overflow-hidden rounded-xl bg-gray-100 border border-gray-50">
+            <img src="${item.facilityImage}" alt="${item.facilityName}" class="w-full h-full object-cover transition-transform group-hover:scale-110" />
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start gap-2">
+                <h3 class="font-bold text-m truncate text-gray-800">${item.facilityName}</h3>
+                <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-md shrink-0">${item.distance ? item.distance.toFixed(1) : 0}km</span>
             </div>
-            <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 class="font-bold text-sm truncate text-gray-800">${item.facilityName}</h3>
-                    <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-md shrink-0">${item.distance ? item.distance.toFixed(1) : 0}km</span>
-                </div>
-                <div class="text-xs text-yellow-400 mt-0.5">${stars}</div>
-                <div class="mt-2 space-y-1">
-                    <p class="text-[11px] text-gray-500 flex items-start"><span class="mr-1 text-blue-400">📍</span><span class="truncate">${item.newAddress}</span></p>
-                    ${item.facilityTel ? `<p class="text-[11px] text-gray-400 flex items-center"><span class="mr-1 text-green-500">📞</span><span class="truncate">${item.facilityTel}</span></p>` : ''}
-                </div>
+            
+            <div class="flex items-center gap-0.5 mt-0.5 ">${icons}</div>
+            
+            <div class="mt-2 space-y-1">
+                <p class="text-[11px] text-gray-500 flex items-start"><span class="mr-1 text-blue-400">📍</span><span class="truncate">${item.newAddress}</span></p>
+                ${item.facilityTel ? `<p class="text-[11px] text-gray-400 flex items-center"><span class="mr-1 text-green-500">📞</span><span class="truncate">${item.facilityTel}</span></p>` : ''}
             </div>
-        </div>`;
+        </div>
+    </div>`;
 }
 
-// 6. 시설 상세 정보 조회 및 사이드바 바인딩
+// 6. 시설 상세 정보 조회 및 사이드바 바인딩 (수정됨: 클릭 시 리스트 클래스 토글 로직 추가)
 async function handleOpenDetail(facilityId, latLng) {
-    selectedFacilityId = facilityId;
+    selectedFacilityId = String(facilityId); // 데이터 타입 일치를 위해 스트링 변환
     if (map && latLng) map.panTo(latLng);
+
+    document.querySelectorAll('.facility-item').forEach(el => {
+        if (el.getAttribute('data-id') === selectedFacilityId) {
+            el.classList.remove('bg-white', 'border-gray-100', 'hover:border-blue-200');
+            el.classList.add('bg-bg-soft', 'border-green-400');
+        } else {
+            el.classList.remove('bg-bg-soft', 'border-green-400');
+            el.classList.add('bg-white', 'border-gray-100', 'hover:border-blue-200');
+        }
+    });
 
     try {
         // 상세 데이터 가져오기
@@ -244,7 +264,7 @@ async function handleOpenDetail(facilityId, latLng) {
         const detail = await response.json();
 
         // 사이드바 UI 갱신
-        document.getElementById('detailImage').src = `/images/${detail.facilityImage}`;
+        document.getElementById("detailImage").src = detail.facilityImage;
         document.getElementById('detailName').innerText = detail.facilityName;
         document.getElementById('detailScore').innerText = Number(detail.facilityScore || 0).toFixed(1);
         document.getElementById('capacityCnt').innerText = detail.capacityCnt || 0;
@@ -299,7 +319,10 @@ async function fetchNearbyParks(facilityId) {
                 <div class="p-4 rounded-xl border border-gray-100 bg-white shadow-sm flex flex-col gap-3">
                     <div class="flex flex-col gap-1.5">
                         <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded w-fit border border-green-100">${park.category}</span>
-                        <h4 class="text-[15px] font-bold text-gray-800 leading-tight">🌳 ${park.name}</h4>
+                        <h4 class="text-[15px] font-bold text-gray-800 leading-tight flex items-center gap-1.5">
+                            <img src="/images/icons/score-true.png" alt="공원" class="w-5 h-5 object-contain border border-transparent rounded-full"> 
+                            <span>${park.name}</span>
+                        </h4>
                     </div>
                     <div class="space-y-2 border-t border-gray-50 pt-3 text-[13px] text-gray-600">
                         <p>📍 ${park.lotAddress}</p>
@@ -406,6 +429,11 @@ function initEventListeners() {
         detailSidebarEl.classList.add('hidden');
         selectedFacilityId = null;
         parkMarkers.forEach(m => m.setMap(null)); // 공원 마커 지우기
+
+        document.querySelectorAll('.facility-item').forEach(el => {
+            el.classList.remove('bg-whi', 'border-green-400');
+            el.classList.add('bg-white', 'border-gray-100', 'hover:border-blue-200');
+        });
     });
 
     // 즐겨찾기 버튼 클릭 액션 인터랙션
