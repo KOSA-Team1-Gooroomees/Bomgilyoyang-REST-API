@@ -22,7 +22,8 @@ public class Board {
 
     private String title;
     private String content;
-    private int cnt;
+    private int cnt;       // 조회수
+    private int likeCnt;   // 좋아요 수 (추가)
 
     @CreatedDate
     @Column(updatable = false)
@@ -37,6 +38,7 @@ public class Board {
         board.title = title;
         board.content = content;
         board.cnt = 0;
+        board.likeCnt = 0; // 초기값 0
         return board;
     }
     public void increaseCnt() {
@@ -46,6 +48,17 @@ public class Board {
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+    // 좋아요 증가
+    public void increaseLikeCnt() {
+        this.likeCnt += 1;
+    }
+
+    // 좋아요 감소 (취소 시, 0 아래로 내려가지 않도록 방어)
+    public void decreaseLikeCnt() {
+        if (this.likeCnt > 0) {
+            this.likeCnt -= 1;
+        }
     }
     //서비스에서 검사할 걸 여기서 작성하면, 서비스에 여러곳에서 작성할 필요 없이
     //편리함.
