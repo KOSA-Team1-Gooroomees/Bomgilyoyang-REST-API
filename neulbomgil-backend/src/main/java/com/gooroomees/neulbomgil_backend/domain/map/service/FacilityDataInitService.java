@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +32,8 @@ public class FacilityDataInitService {
     private String API_KEY;
 
     private final String API_URL = "https://api.vworld.kr/req/data";
+
+    private final String IMAGE_DIR_PATH = "src/main/resources/static/images/facility/";
 
     @Scheduled(cron = "0 0 4 * * *")
     public void refreshFacilities() {
@@ -58,13 +61,11 @@ public class FacilityDataInitService {
 
                 VWorldResponse.ResponseData resBody = response.getResponse();
 
-                // 첫 페이지에서 전체 페이지 수 계산
                 if (page == 1 && resBody.getPage() != null) {
                     totalPages = Integer.parseInt(resBody.getPage().getTotal());
                     log.info("수집 대상: 총 {}페이지 ({}건)", totalPages, resBody.getRecord().getTotal());
                 }
 
-                // 데이터 추출 및 벌크 저장
                 if (resBody.getResult() != null && resBody.getResult().getFeatureCollection() != null) {
                     List<VWorldResponse.Feature> features = resBody.getResult().getFeatureCollection().getFeatures();
                     if (features != null && !features.isEmpty()) {
@@ -74,7 +75,7 @@ public class FacilityDataInitService {
                 }
 
                 page++;
-                Thread.sleep(200); // Rate Limit 방지
+                Thread.sleep(200);
             }
         } catch (Exception e) {
             log.error("수집 중 예외 발생 (Page: {}): ", page, e);
@@ -84,19 +85,15 @@ public class FacilityDataInitService {
 
     @Transactional
     public void savePageData(List<VWorldResponse.Feature> features) {
-        // 1. 현재 페이지의 모든 ID 리스트 생성
         List<String> ids = features.stream().map(VWorldResponse.Feature::getId).toList();
 
-        // 2. DB에서 기존 데이터 1번에 조회하여 Map으로 전환
         Map<String, Facility> existingMap = facilityRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Facility::getId, f -> f));
 
-        // 3. 엔터티 변환 및 업데이트
         List<Facility> facilitiesToSave = features.stream()
                 .map(feature -> mapToEntity(feature, Optional.ofNullable(existingMap.get(feature.getId()))))
                 .toList();
 
-        // 4. saveAll을 통한 벌크 저장
         facilityRepository.saveAll(facilitiesToSave);
     }
 
@@ -105,6 +102,8 @@ public class FacilityDataInitService {
         List<Double> coords = feature.getGeometry().getCoordinates();
         double lon = coords.get(0);
         double lat = coords.get(1);
+
+        String imagePath = determineImagePath(props.getFacilityName(), existing);
 
         return Facility.builder()
                 .id(feature.getId())
@@ -117,9 +116,35 @@ public class FacilityDataInitService {
                 .latitude(lat)
                 .capacityCnt(existing.map(Facility::getCapacityCnt).orElse(40))
                 .currentCnt(existing.map(Facility::getCurrentCnt).orElse(0))
-                .facilityImage(existing.map(Facility::getFacilityImage).orElse("facility.png"))
+                .facilityImage(imagePath)
                 .facilityScore(calculateFacilityScore(lat, lon))
                 .build();
+    }
+
+    private final String WEB_PATH_PREFIX = "/images/facility/";
+    private final String DEFAULT_IMAGE = "/images/facility.png";
+
+    private String determineImagePath(String facilityName, Optional<Facility> existing) {
+        if (existing.isPresent()) {
+            String currentImg = existing.get().getFacilityImage();
+            if (currentImg != null && currentImg.startsWith("/")) {
+                return currentImg;
+            }
+        }
+
+        if (facilityName == null || facilityName.isBlank()) {
+            return DEFAULT_IMAGE;
+        }
+
+        String cleanedName = facilityName.replaceAll("\\s+", "");
+        String webpFileName = cleanedName + ".webp";
+
+        File imageFile = new File(IMAGE_DIR_PATH + webpFileName);
+        if (imageFile.exists()) {
+            return WEB_PATH_PREFIX + webpFileName;
+        }
+
+        return DEFAULT_IMAGE;
     }
 
     private Integer calculateFacilityScore(double lat, double lon) {
