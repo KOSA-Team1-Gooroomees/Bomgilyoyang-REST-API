@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>늘봄길 - CareMap</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript"
             th:src="'//dapi.kakao.com/v2/maps/sdk.js?appkey='+${kakaoMapApiKey}+'&libraries=services'"></script>
 </head>
 <body class="bg-white">
+<div th:replace="~{fragments/header :: header}"></div>
 <div class="flex flex-col md:flex-row w-screen h-screen overflow-hidden bg-white">
 
     <div class="w-full md:w-[400px] h-full flex flex-col border-r border-gray-200 z-10 shadow-lg">
@@ -80,7 +82,9 @@
 
             <div>
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    🌳 인근 공원 <span id="parkCount" class="text-green-600 text-sm font-medium">0</span>
+                    <img src="/images/icons/score-true.png" alt="공원"
+                         class="w-7 h-7 object-contain border border-transparent rounded-full"> 인근 공원 <span
+                        id="parkCount" class="text-green-600 text-sm font-medium">0</span>
                 </h3>
                 <div id="nearbyParkList" class="flex flex-col gap-3"></div>
             </div>
