@@ -13,6 +13,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
+import static com.gooroomees.neulbomgil_backend.domain.auth.entity.QUserAuth.userAuth;
+
 @Tag(name = "게시판", description = "게시판 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -47,12 +51,13 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getBoardsReplyCount(page));
     }
 
-    // 게시글 단건 조회
-    @Operation(summary = "게시글 단건 조회",
-            description = "게시글 ID로 특정 게시글을 조회합니다. 조회 시 조회수가 1 증가합니다.")
+    // 단건 조회 (userAuth nullable - 비로그인도 조회 가능)
+    @Operation(summary = "게시글 단건 조회", description = "조회 시 조회수 +1. 로그인 시 좋아요 여부 포함.")
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDTO> getOneBoard(@PathVariable Long boardId) {
-        return ResponseEntity.ok(boardService.getOneBoard(boardId));
+    public ResponseEntity<BoardResponseDTO> getOneBoard(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        return ResponseEntity.ok(boardService.getOneBoard(boardId, userAuth));
     }
 
     // 검색
@@ -100,5 +105,14 @@ public class BoardController {
     {
         boardService.deleteBoard(boardId, userAuth);
         return ResponseEntity.noContent().build();
+    }
+    // 좋아요 토글
+    @Operation(summary = "좋아요 토글", description = "좋아요 추가/취소. JWT 토큰 필요.")
+    @PostMapping("/{boardId}/likes")
+    public ResponseEntity<Map<String, Object>> toggleLike(
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        boolean liked = boardService.toggleLike(boardId, userAuth);
+        return ResponseEntity.ok(Map.of("liked", liked));
     }
 }
