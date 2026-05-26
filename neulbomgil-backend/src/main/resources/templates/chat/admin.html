@@ -239,9 +239,11 @@
 
             background-color:#ffffff;
 
+
             display:flex;
-            align-items:center;
-            justify-content:center;
+
+            align-items:flex-start;
+            justify-content:flex-start;
         }
 
         .content-text{
@@ -249,6 +251,191 @@
 
             font-size:32px;
             font-weight:bold;
+        }
+
+        /*
+    =========================
+    오른쪽 관리자 영역
+=========================
+*/
+
+        .content-area{
+
+            flex:1;
+
+            background-color:#f8faf7;
+
+            overflow-y:auto;
+        }
+
+        .admin-content{
+
+            width:100%;
+
+            padding:36px 40px;
+        }
+
+        .admin-header{
+
+            margin-bottom:24px;
+        }
+
+        .admin-title{
+
+            margin:0;
+
+            font-size:34px;
+            font-weight:700;
+
+            color:#222;
+        }
+
+        .admin-description{
+
+            margin-top:10px;
+
+            font-size:15px;
+
+            color:#666;
+        }
+
+        .admin-tab-area{
+
+            display:flex;
+            gap:12px;
+
+            margin-bottom:24px;
+        }
+
+        .admin-tab{
+
+            height:42px;
+
+            padding:0 18px;
+
+            border:none;
+            border-radius:999px;
+
+            background-color:white;
+
+            font-size:14px;
+            font-weight:700;
+
+            cursor:pointer;
+
+            box-shadow:0 2px 5px rgba(0,0,0,0.06);
+
+            transition:0.2s;
+        }
+
+        .admin-tab.active{
+
+            background-color:#dfe9dd;
+        }
+
+        .admin-table-wrapper{
+
+            background-color:white;
+
+            border-radius:18px;
+
+            overflow:hidden;
+
+            box-shadow:0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .admin-table-header,
+        .admin-table-row{
+
+            display:grid;
+
+            grid-template-columns:
+        80px
+        1.1fr
+        1.5fr
+        1.1fr
+        100px
+        90px
+        90px
+        120px;
+
+            align-items:center;
+
+            padding:18px 24px;
+        }
+
+        .admin-table-header{
+
+            background-color:#f2f5ef;
+
+            font-size:15px;
+            font-weight:700;
+        }
+
+        .admin-table-row{
+
+            border-top:1px solid #eeeeee;
+
+            background-color:white;
+        }
+
+        .admin-table-row:hover{
+
+            background-color:#fafcf8;
+        }
+
+        .status-active,
+        .status-remove{
+
+            display:inline-flex;
+
+            align-items:center;
+            justify-content:center;
+
+            width:56px;
+            height:28px;
+
+            border-radius:999px;
+
+            color:white;
+
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .status-active{
+
+            background-color:#8fb08e;
+        }
+
+        .status-remove{
+
+            background-color:#cc705f;
+        }
+
+        .status-change-btn{
+
+            border:none;
+
+            background-color:#7faebb;
+
+            color:white;
+
+            border-radius:10px;
+
+            padding:8px 14px;
+
+            font-size:13px;
+            font-weight:700;
+
+            cursor:pointer;
+
+            transition:0.2s;
+        }
+
+        .status-change-btn:hover{
+
+            background-color:#6b98a5;
         }
 
     </style>
@@ -373,14 +560,122 @@
 
     </section>
 
+
+
     <!-- =========================
-         오른쪽 관리자 페이지 영역
-    ========================== -->
+       오른쪽 관리자 페이지 영역
+  ========================== -->
 
     <section class="content-area">
 
-        <div class="content-text">
-            관리자 페이지 영역
+        <div class="admin-content">
+
+            <!-- 제목 -->
+            <div class="admin-header">
+
+                <div>
+                    <h2 class="admin-title">
+                        사용자 관리
+                    </h2>
+
+                    <p class="admin-description">
+                        회원 정보를 조회하고 관리할 수 있습니다.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- 탭 -->
+            <div class="admin-tab-area">
+
+                <!-- 전체 사용자 -->
+                <button
+                        type="button"
+
+                        class="admin-tab"
+
+                        th:classappend="${type == 'all'} ? ' active' : ''"
+
+                        onclick="location.href='/admin/users'">
+
+                    전체 사용자
+                    (<span th:text="${allUserCount}">0</span>)
+
+                </button>
+
+                <!-- 탈퇴 사용자 -->
+                <button
+                        type="button"
+
+                        class="admin-tab"
+
+                        th:classappend="${type == 'deleted'} ? ' active' : ''"
+
+                        onclick="location.href='/admin/users/deleted'">
+
+                    탈퇴 사용자
+                    (<span th:text="${deletedUserCount}">0</span>)
+
+                </button>
+
+            </div>
+
+            <!-- 테이블 -->
+            <div class="admin-table-wrapper">
+
+                <!-- 헤더 -->
+                <div class="admin-table-header">
+
+                    <div>번호</div>
+                    <div>이름(아이디)</div>
+                    <div>이메일</div>
+                    <div>가입일</div>
+                    <div>상태</div>
+                    <div>게시글</div>
+                    <div>댓글</div>
+                    <div>관리</div>
+
+                </div>
+
+                <!-- 사용자 목록 -->
+                <div class="admin-table-row" th:each="user : ${users}">
+
+                    <div th:text="${user.userId()}">1</div>
+
+                    <div th:text="${user.name()} ?: '-'">이름</div>
+
+                    <div th:text="${user.email()} ?: '-'">email@test.com</div>
+
+                    <div th:text="${user.createdAt()} ?: '-'">2026.03.14</div>
+
+                    <div>
+        <span
+                th:if="${user.status().name() == 'ACTIVE'}"
+                class="status-active">
+            활성
+        </span>
+
+                        <span
+                                th:if="${user.status().name() == 'REMOVED'}"
+                                class="status-remove">
+            탈퇴
+        </span>
+                    </div>
+
+                    <div th:text="${user.boardCount() != null ? user.boardCount() : 0}">0</div>
+
+                    <div th:text="${user.replyCount() != null ? user.replyCount() : 0}">0</div>
+
+                    <div>
+                        <form th:action="@{/admin/users/{userId}/status(userId=${user.userId()})}" method="post">
+                            <button type="submit" class="status-change-btn">상태변경</button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </section>

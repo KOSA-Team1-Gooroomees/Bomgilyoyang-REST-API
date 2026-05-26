@@ -1,12 +1,10 @@
-package com.gooroomees.neulbomgil_backend.domain.admin.controller;
+package com.gooroomees.neulbomgil_backend.domain.admin.controller.api;
 
 import com.gooroomees.neulbomgil_backend.domain.admin.dto.AdminUserResponseDto;
 import com.gooroomees.neulbomgil_backend.domain.admin.service.AdminService;
-import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

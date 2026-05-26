@@ -96,7 +96,6 @@ public class ChatViewController {
         List<ChatRoomResponseDto> chatRooms =
                 chatService.getAllChatRooms();
 
-        log.info("chatRooms={}", chatRooms);
 
         ModelAndView mv = new ModelAndView("chat/admin");
         mv.addObject("chatRooms", chatRooms);
