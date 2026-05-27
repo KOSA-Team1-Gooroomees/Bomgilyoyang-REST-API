@@ -1,6 +1,6 @@
 import React from 'react';
 
-import scoreTrue from '../../../assets/score-true.png';
+import scoreTrue from '../../../assets/images/icons/score-true.png';
 
 const ParkItem = ({park}) => {
     // 쉼표를 포함한 면적 계산

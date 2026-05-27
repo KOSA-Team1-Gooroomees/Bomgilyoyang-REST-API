@@ -1,7 +1,7 @@
 import React from 'react';
 
-import scoreTrue from '../../../assets/score-true.png';
-import scoreFalse from '../../../assets/score-false.png';
+import scoreTrue from '../../../assets/images/icons/score-true.png';
+import scoreFalse from '../../../assets/images/icons/score-false.png';
 
 const FacilityItem = React.forwardRef(({item, isSelected, onClick}, ref) => {
     const IMAGE_BASE_URL = import.meta.env.VITE_API_BASE_URL;

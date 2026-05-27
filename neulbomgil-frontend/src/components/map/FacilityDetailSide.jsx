@@ -1,6 +1,6 @@
 import 'react';
 import ParkItem from "./item/ParkItem.jsx";
-import scoreTrue from '../../assets/score-true.png';
+import scoreTrue from '../../assets/images/icons/score-true.png';
 import { useFacilityFavorite } from '../../hooks/map/useFacilityFavorite.js';
 
 const FacilityDetailSide = ({ facility, parks, onClose }) => {
