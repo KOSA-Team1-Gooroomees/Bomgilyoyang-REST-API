@@ -4,6 +4,9 @@ import Map from "./pages/Map.jsx";
 import Board from "./pages/Board.jsx";
 import MyPage from "./pages/MyPage.jsx";
 import FavoriteTest from "./pages/FavoriteTest.jsx";
+import Login from './pages/login.jsx';
+import Register from './pages/Register.jsx';
+import MyPageChange from './pages/MyPageChange.jsx';
 
 function App() {
     return (
@@ -21,6 +24,9 @@ function App() {
                 <Route path="/favorite" element={<FavoriteTest/>}/>
                 <Route path="/board" element={<Board/>}/>
                 <Route path="/myPage" element={<MyPage/>}/>
+                <Route path="/myPageChange" element={<MyPageChange />}/>
+                <Route path="/login" element={<Login />}/>
+                <Route path="/signup" element={<Register />}/>
                 <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>}/>
             </Routes>
         </div>
