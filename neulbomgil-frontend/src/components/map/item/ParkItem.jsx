@@ -16,7 +16,7 @@ const ParkItem = ({park}) => {
                     className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded w-fit border border-green-100">
                     {park.category}
                 </span>
-                <h4 class="text-[15px] font-bold text-gray-800 leading-tight flex items-center gap-1.5">
+                <h4 className="text-[15px] font-bold text-gray-800 leading-tight flex items-center gap-1.5">
                     <img src={scoreTrue} alt="공원"
                          className="w-5 h-5 object-contain border border-transparent rounded-full"/>
                     <span>{park.name}</span>
