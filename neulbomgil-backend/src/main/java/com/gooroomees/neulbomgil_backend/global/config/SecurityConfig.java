@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        //websocket연결
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/api/favorites/**").authenticated()
                         .requestMatchers("/api/map/**").permitAll()
@@ -51,7 +50,6 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        //.requestMatchers()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)
