@@ -48,7 +48,7 @@ const KakaoMap = ({coords, markers, parks, onBoundsChange, selectedFacility, onS
                                 // 선택 여부에 따른 이미지 변경
                                 src: isSelected
                                     ? "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png" // 선택됨
-                                    : "http://localhost:5173/src/assets/basic_marker.png", // 기본
+                                    : "http://localhost:5173/src/assets/images/icons/mark/basic_marker.png", // 기본
                                 size: {width: 24, height: 35},
                             }}
                         />
@@ -73,7 +73,7 @@ const KakaoMap = ({coords, markers, parks, onBoundsChange, selectedFacility, onS
                         onMouseOver={() => setParkHoverId(park.id)}
                         onMouseOut={() => setParkHoverId(null)}
                         image={{
-                            src: "http://localhost:5173/src/assets/park_marker.png",
+                            src: "http://localhost:5173/src/assets/images/icons/mark/park_marker.png",
                             size: {width: 24, height: 35},
                         }}
                     />
