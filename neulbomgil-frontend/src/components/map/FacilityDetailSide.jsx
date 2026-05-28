@@ -30,7 +30,7 @@ const FacilityDetailSide = ({ facility, parks, onClose }) => {
                         {/* 즐겨찾기 버튼 연동 */}
                         <button
                             id="favoriteBtn"
-                            onClick={() => toggleFavorite(facility)} // 💡 facility 객체를 통째로 넘김
+                            onClick={() => toggleFavorite(facility)}
                             className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full border transition-all ${
                                 hasFavorited ? "bg-red-50 border-red-100 text-red-500" : "bg-gray-50 border-gray-100 text-gray-400 hover:text-red-400"
                             }`}
@@ -42,12 +42,20 @@ const FacilityDetailSide = ({ facility, parks, onClose }) => {
                     </div>
 
                     <div className="flex items-center mt-2.5 justify-between">
-                        <div className="flex items-center space-x-1">
-                            <span id="detailScore" className="text-sm font-bold text-gray-700 ml-1">{Number(facility.facilityScore || 0).toFixed(1)}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-[12px]">
-                            <span className="flex items-center gap-1 font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">정원 <span id="capacityCnt" className="text-blue-600">{facility.capacityCnt || 0}</span></span>
-                            <span className="flex items-center gap-1 font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-md">현원 <span id="currentCnt" className="text-green-600">{facility.currentCnt || 0}</span></span>
+                        <div className="relative flex items-center space-x-1 group cursor-pointer">
+                            <img src={scoreTrue} alt="점수 아이콘" className="w-5 h-5 object-contain" />
+                            <span id="detailScore" className="text-sm font-bold text-gray-700 ml-1">
+                                {Number(facility.facilityScore || 0).toFixed(1)}
+                            </span>
+                            {/* 마우스 오버 시 나타나는 말풍선 오버레이 */}
+                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col items-start z-30 w-52">
+                                <div className="bg-gray-800 text-white text-[11px] font-medium px-2.5 py-2 rounded shadow-md leading-normal text-left break-keep">
+                                    <strong className="text-white block mb-1">시설 점수란?</strong>
+                                    인근 공원의 개수와 총면적을 종합적으로 분석하여 산출한 공원 접근성 점수입니다. (1~5점)
+                                </div>
+                                {/* 말풍선 꼬리 */}
+                                <div className="w-2 h-2 bg-gray-800 rotate-45 -mt-1 ml-4"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
