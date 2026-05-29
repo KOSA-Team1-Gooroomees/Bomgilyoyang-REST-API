@@ -1,7 +1,51 @@
-import './Login.css';
+import "./Login.css";
 import LoginModal from "../components/auth/LoginModal";
+import api from "../api/axios";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const navigate = useNavigate();
+
+    // 로그인 로직
+    const handleLogin = async (e) => {
+        console.log("handleLogin");
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await api.post(
+                "/api/auth/login",
+                {
+                    email,
+                    password
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                }
+            );
+
+            const data = response.data;
+
+            console.log("로그인 성공");
+
+            navigate("/");
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || '이메일 또는 비밀번호가 올바르지 않습니다.';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <>
             <div className="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen text-gray-800 flex flex-col">
@@ -33,17 +77,19 @@ export default function Login() {
                                 <span th:text="${message}">성공 메시지</span>
                             </div> */}
 
-                            <form method="post" action="http://localhost:8088/api/auth/login">
+                            <form onSubmit={handleLogin}>
                                 <div className="relative mb-3 ">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                         <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
                                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
                                     </div>
                                     <input type="email" name="email" placeholder="이메일을 입력하세요"
                                         className="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm text-gray-700 placeholder-gray-400 bg-gray-50/50"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         required />
                                 </div>
 
@@ -51,20 +97,22 @@ export default function Login() {
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                         <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
                                             stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
                                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
                                     </div>
                                     <input type="password" name="password" id="password" placeholder="비밀번호를 입력하세요"
                                         className="w-full pl-11 pr-11 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green text-sm text-gray-700 placeholder-gray-400 bg-gray-50/50"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         required />
 
                                         <button type="button"
                                             className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
                                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
                                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
                                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                         </button>
@@ -91,8 +139,8 @@ export default function Login() {
                                     <path
                                         d="M16 4.64C9.231 4.64 3.743 8.761 3.743 13.845c0 3.284 2.302 6.166 5.811 7.822l-1.127 4.14c-.11.402.35.7.671.49l4.802-3.187c.683.094 1.385.143 2.1.143 6.769 0 12.257-4.122 12.257-9.205C28.257 8.76 22.769 4.64 16 4.64z"
                                         fill="#3C1E1E" />
-                                    <text x="16" y="17" font-size="7" font-weight="bold" fill="#FEE500" text-anchor="middle"
-                                        font-family="sans-serif">TALK
+                                    <text x="16" y="17" fontSize="7" fontWeight="bold" fill="#FEE500" textAnchor="middle"
+                                        fontFamily="sans-serif">TALK
                                     </text>
                                 </svg>
                                 카카오톡으로 로그인
