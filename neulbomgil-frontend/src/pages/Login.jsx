@@ -1,4 +1,4 @@
-import "./Login.css";
+import "./login-theme.css";
 // import LoginModal from "../components/auth/LoginModal";
 import api from "../api/axios";
 import { useState } from "react";
@@ -44,11 +44,11 @@ export default function Login() {
 
     return (
         <>
-            <div className="bg-gradient-to-b from-[#E0F0E9] to-[#C9E4D6] min-h-screen text-gray-800 flex flex-col">
+            <div className="min-h-screen text-gray-800 flex flex-col">
 
                 <div className="flex-1 flex items-center justify-center relative overflow-hidden px-4 py-10">
 
-                    <div className="relative z-10 w-full max-w-[400px] px-5 mt-[-50px] ">
+                    <div className="relative z-10 w-full max-w-100 px-5 -mt-12.5 ">
 
                         <div
                             className="rounded-[20px] shadow-lg p-6 relative z-10 mt-10 bg-[url('/images/login-background.png')] bg-cover bg-bottom ">
@@ -124,12 +124,12 @@ export default function Login() {
                             </form>
 
                             <div className="mt-6 mb-6 flex items-center justify-center">
-                                <div className="border-t border-gray-200 flex-grow"></div>
+                                <div className="border-t border-gray-200 grow"></div>
                                 <span className="px-3 text-gray-400 text-xs">또는</span>
-                                <div className="border-t border-gray-200 flex-grow"></div>
+                                <div className="border-t border-gray-200 grow"></div>
                             </div>
 
-                            <a th:href="@{/oauth2/authorization/kakao}"
+                            <a href="/api/auth/kakao"
                                 className="w-full bg-brand-kakao hover:bg-brand-kakaoHover text-[#3C1E1E] font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 text-sm">
                                 <svg className="w-4 h-4" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -144,14 +144,11 @@ export default function Login() {
 
                             <div className="mt-7 text-center text-[13px]">
                                 <span className="text-gray-500">아직 회원이 아니신가요?</span>
-                                <a th:href="@{/signup}" className="text-[#4A8A54] font-medium hover:underline ml-1">회원가입</a>
+                                <a href="/signup" className="text-[#4A8A54] font-medium hover:underline ml-1">회원가입</a>
                             </div>
                         </div>
-
                     </div>
                 </div>
-                <div th:replace="~{fragments/footer :: footer}"></div>
-
             </div>
         </>
     );
