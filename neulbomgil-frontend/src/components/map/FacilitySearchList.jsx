@@ -6,7 +6,6 @@ import { useFacilitySearch } from "../../hooks/map/useFacilitySearch.js";
 const FacilitySearchList = ({ coords, facilities, setFacilities, onSelectFacility, selectedId }) => {
     const { keyword, setKeyword, loading: searchLoading, lastElementRef } = useFacilitySearch(coords, setFacilities);
     const [activeTab, setActiveTab] = useState("search");
-    const TEST_USER_ID = 1;
 
     return (
         <>
@@ -62,7 +61,6 @@ const FacilitySearchList = ({ coords, facilities, setFacilities, onSelectFacilit
                 {/* 2. 즐겨찾기 탭 활성화 시 */}
                 {activeTab === "favorite" && (
                     <FacilityFavoriteList
-                        TEST_USER_ID={TEST_USER_ID}
                         selectedId={selectedId}
                         onSelectFacility={onSelectFacility}
                     />

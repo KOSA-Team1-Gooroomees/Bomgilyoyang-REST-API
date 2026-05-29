@@ -11,18 +11,15 @@ const Home = () => {
             const params = new URLSearchParams();
             params.append('email', email);
             params.append('password', password);
-            const response = await api.post('/api/auth/login', params, {
+
+            await api.post('/api/auth/login', params, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                },
+                withCredentials: true
             });
-            const token = response.data.accessToken
-            if (token) {
-                localStorage.setItem('accessToken', token);
-                alert('로그인 성공!');
-            } else {
-                alert('로그인에 성공했으나 토큰을 찾을 수 없습니다.');
-            }
+
+            alert('로그인 성공!');
 
         } catch (err) {
             console.error('로그인 에러:', err);
