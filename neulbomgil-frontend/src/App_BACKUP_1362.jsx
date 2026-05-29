@@ -3,10 +3,13 @@ import Home from "./pages/Home.jsx";
 import Map from "./pages/Map.jsx";
 import Board from "./pages/Board.jsx";
 import MyPage from "./pages/MyPage.jsx";
+<<<<<<< HEAD
 import FavoriteTest from "./pages/FavoriteTest.jsx";
 import Login from './pages/login.jsx';
 import Register from './pages/Register.jsx';
 import MyPageChange from './pages/MyPageChange.jsx';
+=======
+>>>>>>> 4d791a53e8465d4683bb00cf8bf19c78221f9cf9
 
 function App() {
     return (

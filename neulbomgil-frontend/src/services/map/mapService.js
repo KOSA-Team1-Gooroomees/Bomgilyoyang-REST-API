@@ -21,7 +21,6 @@ export const getFacilityDetail = (facilityId) => {
  * @param {Object} params - lat, lon, radius
  */
 export const getFacilityMarkers = (params) => {
-    // 명세서상 쿼리 파라미터로 MarkerRequest를 받으므로 params로 전달
     return api.get('/api/map/facilities/markers', {params});
 };
 
