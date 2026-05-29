@@ -1,5 +1,5 @@
 import "./Login.css";
-import LoginModal from "../components/auth/LoginModal";
+// import LoginModal from "../components/auth/LoginModal";
 import api from "../api/axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ export default function Login() {
         setError('');
 
         try {
-            const response = await api.post(
+            await api.post(
                 "/api/auth/login",
                 {
                     email,
@@ -32,10 +32,6 @@ export default function Login() {
                     }
                 }
             );
-
-            const data = response.data;
-
-            console.log("로그인 성공");
 
             navigate("/");
         } catch (err) {

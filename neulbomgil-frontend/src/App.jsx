@@ -3,7 +3,6 @@ import Home from "./pages/Home.jsx";
 import Map from "./pages/Map.jsx";
 import Board from "./pages/Board.jsx";
 import MyPage from "./pages/MyPage.jsx";
-import FavoriteTest from "./pages/FavoriteTest.jsx";
 import Login from './pages/login.jsx';
 import Register from './pages/Register.jsx';
 import MyPageChange from './pages/MyPageChange.jsx';
