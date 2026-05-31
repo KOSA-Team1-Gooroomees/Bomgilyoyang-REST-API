@@ -1,9 +1,7 @@
 package com.gooroomees.neulbomgil_backend.domain.auth.controller;
 
 import com.gooroomees.neulbomgil_backend.domain.auth.dto.request.*;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.CreateAccessTokenResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.JwtTokenResponse;
-import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.LoginResponse;
+import com.gooroomees.neulbomgil_backend.domain.auth.dto.response.*;
 import com.gooroomees.neulbomgil_backend.domain.auth.entity.UserAuth;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.AuthService;
 import com.gooroomees.neulbomgil_backend.domain.auth.service.EmailService;
@@ -40,6 +38,19 @@ public class AuthController {
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam("email") String email) {
         return ResponseEntity.ok(authService.isEmailDuplicated(email));
+    }
+
+    @Operation(summary = "현재 로그인한 사용자 정보 조회")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getMyInfo(@AuthenticationPrincipal UserAuth user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(UserResponseDto.builder()
+                .email(user.getEmail())
+                .name(user.getName())
+                .role(user.getRole().name())
+                .build());
     }
 
     @Operation(summary = "일반 로그인")
@@ -187,5 +198,32 @@ public class AuthController {
         authService.deleteUser(user.getUserId());
 
         return ResponseEntity.ok("User Removed");
+    }
+
+    @Operation(summary = "회원 정보 수정")
+    @PostMapping("/update")
+    public ResponseEntity<String> updateUserInfo(@AuthenticationPrincipal UserAuth user,
+                                                 @RequestBody UpdateUserRequest request) {
+        try {
+            authService.updateUserInfo(user, request);
+            return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @PostMapping("/withdraw")
+    public ResponseEntity<String> withdraw(@AuthenticationPrincipal UserAuth user,
+                                           @RequestBody WithdrawRequest request) {
+        try {
+            if (authService.withdraw(user, request)) {
+                return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+            } else {
+                return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 }

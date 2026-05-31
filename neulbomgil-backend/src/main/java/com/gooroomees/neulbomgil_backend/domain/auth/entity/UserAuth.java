@@ -43,6 +43,11 @@ public class UserAuth implements UserDetails {
         this.status = Status.ACTIVE;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+        this.modifiedAt = LocalDateTime.now();
+    }
+
     public void updatePassword(String password) {
         this.password = password;
     }

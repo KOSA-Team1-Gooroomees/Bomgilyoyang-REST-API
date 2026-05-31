@@ -268,6 +268,27 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public void updateUserInfo(UserAuth user, UpdateUserRequest request) {
+        UserAuth userAuth = userAuthRepository.findById(user.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        userAuth.updateName(request.getName());
+        userAuthRepository.save(userAuth);
+    }
+
+    @Transactional
+    public boolean withdraw(UserAuth user, WithdrawRequest request) {
+        UserAuth userAuth = userAuthRepository.findById(user.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (!passwordEncoder.matches(request.getPassword(), userAuth.getPassword())) {
+            return false;
+        }
+        userAuth.deleteUser();
+        userAuthRepository.save(userAuth);
+        return true;
+    }
+
 
     private KakaoTokenResponse requestToken(String accessCode) {
         RestTemplate restTemplate = new RestTemplate();
