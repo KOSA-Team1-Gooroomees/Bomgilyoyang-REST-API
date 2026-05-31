@@ -21,7 +21,7 @@ function App() {
                 <Route path="/map" element={<Map/>}/>
                 <Route path="/board" element={<Board/>}/>
                 <Route path="/myPage" element={<MyPage/>}/>
-                <Route path="/myPageChange" element={<MyPageChange />}/>
+                <Route path="/myPage-change" element={<MyPageChange />}/>
                 <Route path="/login" element={<Login />}/>
                 <Route path="/signup" element={<Register />}/>
                 <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>}/>
