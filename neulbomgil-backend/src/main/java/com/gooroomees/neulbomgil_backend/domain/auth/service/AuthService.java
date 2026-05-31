@@ -50,7 +50,9 @@ public class AuthService {
 
     @Transactional
     public String register(RegisterRequest registerRequest) {
-        // 이메일 중복되면 처리안되도록
+        if (userAuthRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
 
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
@@ -63,6 +65,10 @@ public class AuthService {
         emailService.sendAuthLink(user.getUserId());
 
         return "User registered. Please check your email for verification.";
+    }
+
+    public boolean isEmailDuplicated(String email) {
+        return userAuthRepository.existsByEmail(email);
     }
 
     @Transactional

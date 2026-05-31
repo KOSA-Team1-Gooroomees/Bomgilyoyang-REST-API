@@ -36,6 +36,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
 
+    @Operation(summary = "이메일 중복 확인")
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam("email") String email) {
+        return ResponseEntity.ok(authService.isEmailDuplicated(email));
+    }
+
     @Operation(summary = "일반 로그인")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@ModelAttribute LoginRequest request, HttpServletResponse response) {
