@@ -125,4 +125,10 @@ public class BoardService {
             return true; // 좋아요 추가됨
         }
     }
+
+    public Page<BoardResponseDTO> getMyBoards(UserAuth userAuth, int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        return boardRepository.findByUser(userAuth, pageable)
+                .map(this::toResponse);
+    }
 }

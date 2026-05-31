@@ -24,4 +24,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAllOrderByReplyCount(Pageable pageable);
 
     Long countByUser(UserAuth user);
+
+    Page<Board> findByUser(UserAuth user, Pageable pageable);
 }
