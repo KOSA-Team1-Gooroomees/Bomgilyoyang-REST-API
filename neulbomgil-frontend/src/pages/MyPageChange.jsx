@@ -1,4 +1,3 @@
-import "./mypagechange-theme.css";
 import { useState, useEffect } from "react";
 import api from "../api/axios.js";
 import { useNavigate } from "react-router-dom";

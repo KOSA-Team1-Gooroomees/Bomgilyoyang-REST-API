@@ -1,4 +1,4 @@
-import "./register-theme.css";
+import "../styles/register-theme.css";
 import { useState } from "react";
 import api from "../api/axios.js";
 import { useNavigate, Link } from "react-router-dom";
