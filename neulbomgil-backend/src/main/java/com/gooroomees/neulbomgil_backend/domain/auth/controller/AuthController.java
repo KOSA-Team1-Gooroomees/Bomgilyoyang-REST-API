@@ -42,11 +42,11 @@ public class AuthController {
 
     @Operation(summary = "현재 로그인한 사용자 정보 조회")
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDto> getMyInfo(@AuthenticationPrincipal UserAuth user) {
+    public ResponseEntity<UserResponse> getMyInfo(@AuthenticationPrincipal UserAuth user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(UserResponseDto.builder()
+        return ResponseEntity.ok(UserResponse.builder()
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole().name())
