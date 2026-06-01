@@ -26,8 +26,10 @@ public class ReplyController {
     @GetMapping
     public ResponseEntity<Page<ReplyResponseDTO>> getReplies(
             @PathVariable Long boardId,
-            @RequestParam(defaultValue = "0") int page){
-        return ResponseEntity.ok(replyService.getReplies(boardId, page));
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal UserAuth userAuth)
+    {
+        return ResponseEntity.ok(replyService.getReplies(boardId, page, userAuth));
     }
     // 댓글 작성
     @Operation(summary = "댓글 작성",
