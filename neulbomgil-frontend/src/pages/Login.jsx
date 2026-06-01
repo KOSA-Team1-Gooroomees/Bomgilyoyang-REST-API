@@ -2,6 +2,7 @@ import "../styles/login-theme.css";
 import api from "../api/axios";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import {useAuth} from "../hooks/auth/useAuth.js";
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -9,6 +10,7 @@ export default function Login() {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { login } = useAuth(false);
 
     const navigate = useNavigate();
 
@@ -33,7 +35,7 @@ export default function Login() {
                     }
                 }
             );
-            
+            login();
             navigate("/");
         } catch (err) {
             console.error("로그인 실패:", err);
