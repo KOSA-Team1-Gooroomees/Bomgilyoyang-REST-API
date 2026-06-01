@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
-import Header from "./Header";
-import Footer from "./Footer";
+import { useAuth } from "../hooks/auth/useAuth";
 
 function formatDate(str) {
   if (!str) return "-";
@@ -38,7 +37,8 @@ export function Pagination({ page, totalPages, onPageChange }) {
 }
 
 export function BoardSidebar({ onChatClick }) {
-  const isLoggedIn = !!localStorage.getItem("accessToken");
+  const {isLoggedIn} = useAuth();
+  console.log(isLoggedIn);
 
   const requireLogin = () => {
     alert("로그인이 필요한 서비스입니다.");
@@ -89,7 +89,7 @@ export function BoardSidebar({ onChatClick }) {
 }
 
 export default function BoardList() {
-  const isLoggedIn = !!localStorage.getItem("accessToken");
+  const {isLoggedIn} = useAuth();
 
   const [boards, setBoards]           = useState({ content: [], totalPages: 0, number: 0 });
   const [sort, setSort]               = useState("recent");
