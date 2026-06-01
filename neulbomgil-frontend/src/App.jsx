@@ -20,7 +20,7 @@ function App() {
                 <Link to="/">홈</Link>
                 <Link to="/map">지도</Link>
                 <Link to="/boards">게시판</Link>
-                <Link to="/myPage">마이페이지</Link>
+                <Link to="/my-page">마이페이지</Link>
                  <Link to="/admin">관리자페이지</Link>
             </nav>
             <Routes>
@@ -33,8 +33,8 @@ function App() {
                 <Route path="/boards/:boardId" element={<BoardDetail />} />
                 <Route path="/boards/:boardId/edit" element={<BoardEdit />} />
 
-                <Route path="/myPage" element={<MyPage/>}/>
-                <Route path="/myPage-change" element={<MyPageChange />}/>
+                <Route path="/my-page" element={<MyPage/>}/>
+                <Route path="/my-page-change" element={<MyPageChange />}/>
                 <Route path="/login" element={<Login />}/>
                 <Route path="/signup" element={<Register />}/>
                 {/* <Route path="/admin" element={<Admin/>}/>
