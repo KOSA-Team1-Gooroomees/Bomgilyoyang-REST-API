@@ -115,4 +115,12 @@ public class BoardController {
         boolean liked = boardService.toggleLike(boardId, userAuth);
         return ResponseEntity.ok(Map.of("liked", liked));
     }
+
+    @Operation(summary = "내가 작성한 게시글 조회", description = "로그인한 사용자가 작성한 게시글 목록을 최신순으로 조회합니다. JWT 토큰 필요.")
+    @GetMapping("/me")
+    public ResponseEntity<Page<BoardResponseDTO>> getMyBoards(
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        return ResponseEntity.ok(boardService.getMyBoards(userAuth, page));
+    }
 }

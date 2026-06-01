@@ -13,3 +13,5 @@ Thumbs.db
 ### Root specific ###
 build/
 bin/
+
+.antigravitycli

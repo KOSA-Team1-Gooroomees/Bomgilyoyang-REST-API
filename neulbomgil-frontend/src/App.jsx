@@ -5,6 +5,10 @@ import Board from "./pages/Board.jsx";
 import MyPage from "./pages/MyPage.jsx";
 import Admin from "./pages/Admin.jsx";
 import Chat from './pages/Chat.jsx';
+import Login from './pages/login.jsx';
+import Register from './pages/Register.jsx';
+import MyPageChange from './pages/MyPageChange.jsx';
+
 
 function App() {
     return (
@@ -23,6 +27,9 @@ function App() {
                 <Route path="/myPage" element={<MyPage/>}/>
                   <Route path="/admin" element={<Admin/>}/>
                   <Route path="/chatrooms/:roomId/message" element={<Chat />} />
+                <Route path="/myPage-change" element={<MyPageChange />}/>
+                <Route path="/login" element={<Login />}/>
+                <Route path="/signup" element={<Register />}/>
                 <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>}/>
             </Routes>
         </div>
