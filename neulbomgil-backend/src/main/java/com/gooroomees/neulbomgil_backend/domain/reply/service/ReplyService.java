@@ -36,9 +36,9 @@ public class ReplyService {
     }
 
     //댓글 목록 조회
-    public Page<ReplyResponseDTO> getReplies(Long boardId, int page) {
+    public Page<ReplyResponseDTO> getReplies(Long boardId, int page, UserAuth currentUser) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        return replyRepository.findByBoard_Boardid(boardId, pageable).map(ReplyResponseDTO::new);
+        return replyRepository.findByBoard_Boardid(boardId, pageable).map(reply -> new ReplyResponseDTO(reply, currentUser));
     }
 
     //댓글 작성
@@ -52,7 +52,7 @@ public class ReplyService {
     //댓글 수정
     @Transactional
     public void updateReply(Long boardId, Long replyId, ReplyRequestDTO dto, UserAuth userAuth) {
-        Board board = findBoard(boardId);//게시글 있는지 확인
+        findBoard(boardId);
         Reply reply = findReply(replyId);//댓글 있는지 확인
         reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
         reply.update(dto.getContent());// 위의 조건이 다 해당된다면 수정 가능
@@ -60,7 +60,7 @@ public class ReplyService {
     //댓글 삭제
     @Transactional
     public void deleteReply(Long boardId, Long replyId, UserAuth userAuth){
-        Board board = findBoard(boardId);//게시글 있는지 확인
+        findBoard(boardId);
         Reply reply = findReply(replyId);//댓글 있는지 확인
         reply.validateOwner(userAuth);// 본인이 작성한 댓글 맞는지 확인
         replyRepository.delete(reply);
