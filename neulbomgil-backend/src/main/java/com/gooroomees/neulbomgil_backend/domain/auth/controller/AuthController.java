@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.Duration;
 
 @Tag(name = "인증 및 인가 관리", description = "회원 가입, 로그인, OAuth, 메일 인증용 API")
@@ -171,7 +172,7 @@ public class AuthController {
 
     @Operation(summary = "카카오 로그인")
     @GetMapping("/kakao")
-    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) throws IOException {
         JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
 
         if (jwtTokenResponse == null)
@@ -188,6 +189,7 @@ public class AuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
+        response.sendRedirect("http://localhost:5173/");
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }

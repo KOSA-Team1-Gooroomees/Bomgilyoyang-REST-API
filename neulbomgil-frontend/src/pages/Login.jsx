@@ -33,16 +33,8 @@ export default function Login() {
                     }
                 }
             );
-
-            // JWT 토큰을 추출하여 로컬스토리지에 저장 (세션 유지용)
-            const token = response.data.accessToken;
-            if (token) {
-                localStorage.setItem("accessToken", token);
-                alert("성공적으로 로그인되었습니다!");
-                navigate("/");
-            } else {
-                setError("토큰 발급에 실패했습니다. 관리자에게 문의하세요.");
-            }
+            
+            navigate("/");
         } catch (err) {
             console.error("로그인 실패:", err);
             const errorMessage = err.response?.data?.message || err.response?.data || '이메일 또는 비밀번호가 올바르지 않습니다.';
@@ -131,7 +123,8 @@ export default function Login() {
                                 <div className="border-t border-gray-200 grow"></div>
                             </div>
 
-                            <a href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088'}/oauth2/authorization/kakao`}
+                            {/*<a href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8088'}/api/auth/kakao`}*/}
+                            <a href={`${import.meta.env.VITE_KAKAO_LOGIN_URL}`}
                                 className="w-full bg-brand-kakao hover:bg-brand-kakaoHover text-[#3C1E1E] font-medium py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors duration-200 text-sm shadow-sm">
                                 <svg className="w-4 h-4" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16 4.64C9.231 4.64 3.743 8.761 3.743 13.845c0 3.284 2.302 6.166 5.811 7.822l-1.127 4.14c-.11.402.35.7.671.49l4.802-3.187c.683.094 1.385.143 2.1.143 6.769 0 12.257-4.122 12.257-9.205C28.257 8.76 22.769 4.64 16 4.64z" fill="#3C1E1E" />
