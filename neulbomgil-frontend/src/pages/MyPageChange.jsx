@@ -225,7 +225,7 @@ export default function MyPageChange() {
                                         </svg>
                                     </button>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">영문, 숫자, 특수문자 포함 8~20자</p>
+                                <p className="text-xs text-gray-500 mt-2">영문, 숫자, 포함 8~16자</p>
                             </div>
 
                             <div className="flex justify-end pt-4">
