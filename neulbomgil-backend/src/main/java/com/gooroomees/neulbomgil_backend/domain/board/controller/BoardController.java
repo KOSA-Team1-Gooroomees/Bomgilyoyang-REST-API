@@ -20,8 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import static com.gooroomees.neulbomgil_backend.domain.auth.entity.QUserAuth.userAuth;
-
 @Tag(name = "게시판", description = "게시판 관련 API")
 @RestController
 @RequiredArgsConstructor
