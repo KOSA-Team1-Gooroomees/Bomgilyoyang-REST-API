@@ -69,9 +69,9 @@ export default function MyPageChange() {
         }
 
         // 새 비밀번호 패턴 검증 (8~20자, 영문, 숫자, 특수문자 포함)
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])\S{8,20}$/;
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)\S{8,16}$/;
         if (!passwordPattern.test(newPassword)) {
-            setError("새 비밀번호는 영문, 숫자, 특수문자를 포함하여 8~20자로 입력해주세요.");
+            setError("새 비밀번호는 영문, 숫자를 포함하여 8~16자로 입력해주세요.");
             return;
         }
 
