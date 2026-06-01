@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
 import { BoardSidebar, Pagination } from "./BoardList";
+import { useAuth } from "../hooks/auth/useAuth";
 
 function formatDateTime(str) {
     if (!str) return "";
@@ -102,7 +103,7 @@ function ReplyItem({ reply, boardId, onUpdated, onDeleted }) {
 // ── BoardDetail 메인 ───────────────────────────────────────
 export default function BoardDetail() {
     const { boardId } = useParams();
-    const isLoggedIn = !!localStorage.getItem("accessToken");
+    const {isLoggedIn} = useAuth();
 
     const [board, setBoard]               = useState(null);
     const [liked, setLiked]               = useState(false);

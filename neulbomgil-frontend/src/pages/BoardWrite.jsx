@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
 import { BoardSidebar } from "./BoardList";
+import { useAuth } from "../hooks/auth/useAuth";
 
 function formatSize(b) {
   if (b < 1024) return b + "B";
@@ -57,7 +58,8 @@ function FileDropZone({ files, onAdd, onRemove, inputId }) {
 
 export default function BoardWrite() {
   // 비로그인 차단
-  if (!localStorage.getItem("accessToken")) {
+  const {isLoggedIn} = useAuth();
+  if (isLoggedIn === false) {
     alert("로그인이 필요한 서비스입니다.");
     window.location.href = "/login";
     return null;
