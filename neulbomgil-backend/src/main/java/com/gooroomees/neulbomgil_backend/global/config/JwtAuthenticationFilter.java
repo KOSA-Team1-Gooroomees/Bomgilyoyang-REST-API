@@ -34,21 +34,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-//        String accessToken = getCookieValue(request, "accessToken");
-//        String refreshToken = getCookieValue(request, "refreshToken");
-//
-//        String token = extractToken(request);
-//        String userEmail;
-        String cookieAccessToken = getCookieValue(request, "accessToken");
+        String accessToken = getCookieValue(request, "accessToken");
         String refreshToken = getCookieValue(request, "refreshToken");
 
-        String bearerAccessToken = extractToken(request);
-
-// JWT 헤더 토큰을 우선 사용하고, 없으면 쿠키 토큰 사용
-        String accessToken = bearerAccessToken != null
-                ? bearerAccessToken
-                : cookieAccessToken;
-
+        String token = extractToken(request);
         String userEmail;
 
         try {
