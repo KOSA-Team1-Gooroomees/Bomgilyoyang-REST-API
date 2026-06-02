@@ -51,7 +51,7 @@ const FacilityDetailSide = ({ facility, parks, onClose }) => {
                             <div className="absolute bottom-full left-0 mb-2 hidden group-hover:flex flex-col items-start z-30 w-52">
                                 <div className="bg-gray-800 text-white text-[11px] font-medium px-2.5 py-2 rounded shadow-md leading-normal text-left break-keep">
                                     <strong className="text-white block mb-1">시설 점수란?</strong>
-                                    인근 공원의 개수와 총면적을 종합적으로 분석하여 산출한 공원 접근성 점수입니다. (1~5점)
+                                    인근 공원의 개수와 총면적을 종합적으로 분석하여 산출한 공원 접근성 점수입니다. (0~5점)
                                 </div>
                                 {/* 말풍선 꼬리 */}
                                 <div className="w-2 h-2 bg-gray-800 rotate-45 -mt-1 ml-4"></div>
