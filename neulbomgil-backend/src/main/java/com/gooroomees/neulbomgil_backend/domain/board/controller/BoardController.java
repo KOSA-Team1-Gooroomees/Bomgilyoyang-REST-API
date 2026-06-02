@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -147,5 +149,16 @@ public class BoardController {
             @AuthenticationPrincipal UserAuth userAuth) {
         boardService.deleteFile(fileId, userAuth);
         return ResponseEntity.noContent().build();
+    }
+//이미지
+    @GetMapping("/files/{fileId}/preview")
+    public ResponseEntity<Resource> previewFile(@PathVariable Long fileId) throws Exception {
+        Resource resource = boardService.downloadFile(fileId);
+        String filePath = boardService.getFilePath(fileId);
+        String contentType = Files.probeContentType(Paths.get(filePath));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE,
+                        contentType != null ? contentType : "application/octet-stream")
+                .body(resource);
     }
 }
