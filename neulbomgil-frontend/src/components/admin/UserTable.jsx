@@ -2,7 +2,13 @@ function UserTable({
     users,
     loading,
     onUpdateUserStatus
+    
 }) {
+    const formatDate = (dateTime) => {
+    if (!dateTime) return "-";
+
+    return dateTime.toString().substring(0, 10);
+};
     const renderStatusBadge = (status) => {
         if (status === 'ACTIVE') {
             return <span className="status-active">활성</span>;
@@ -69,7 +75,7 @@ function UserTable({
 
                     <div>{user.email || '-'}</div>
 
-                    <div>{user.createdAt || '-'}</div>
+                   <div>{formatDate(user.createdAt)}</div>
 
                     <div>
                         {renderStatusBadge(user.status)}
