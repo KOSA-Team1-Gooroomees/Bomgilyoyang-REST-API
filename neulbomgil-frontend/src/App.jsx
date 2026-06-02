@@ -49,12 +49,12 @@ const handleLogout = async () => {
       <Route path="/boards/:boardId" element={<BoardDetail />} />
       <Route path="/boards/:boardId/edit" element={<BoardEdit />} />
 
-      <Route path="/myPage" element={<MyPage />} />
-      <Route path="/myPage-change" element={<MyPageChange />} />
+      <Route path="/mypage" element={<MyPage />} />
+      <Route path="/mypagechange" element={<MyPageChange />} />
 
       <Route path="/admin" element={<Admin />} />
-<Route path="/caregrade" element={<CareGrade />} />
-<Route path="/caregrade/test" element={<CareGradeTest />} />
+        <Route path="/caregrade" element={<CareGrade />} />
+        <Route path="/caregrade/test" element={<CareGradeTest />} />
 
       <Route path="/chatrooms/:roomId/message" element={<Chat />} />
 
