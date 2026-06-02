@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
 import { useAuth } from "../hooks/auth/useAuth";
+import ChatPopup from "../components/admin/ChatPopup.jsx";
+import { startChatRoom } from "../services/chat/chatService.js";
+
 
 function formatDate(str) {
   if (!str) return "-";
@@ -98,10 +101,30 @@ export default function BoardList() {
   const [searchInput, setSearchInput] = useState("");
   const [loading, setLoading]         = useState(false);
 
+  const [chatOpen, setChatOpen] = useState(false);
+const [selectedRoom, setSelectedRoom] = useState(null);
+
   const requireLogin = () => {
     alert("로그인이 필요한 서비스입니다.");
     window.location.href = "/login";
   };
+
+  const openUserChatRoom = async () => {
+  try {
+    const response = await startChatRoom();
+
+    setSelectedRoom(response.data);
+    setChatOpen(true);
+  } catch (error) {
+    console.error("채팅방 시작 실패:", error);
+    alert("채팅방을 시작할 수 없습니다.");
+  }
+};
+
+const closeChatRoom = () => {
+  setChatOpen(false);
+  setSelectedRoom(null);
+};
 
   const fetchBoards = useCallback(async () => {
     setLoading(true);
@@ -134,7 +157,7 @@ export default function BoardList() {
     <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
       <div className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
         <div className="grid gap-5" style={{ gridTemplateColumns: "220px 1fr" }}>
-          <BoardSidebar onChatClick={() => {}} />
+          <BoardSidebar onChatClick={openUserChatRoom} />
 
           <main className="bg-white rounded-xl p-8 shadow-sm">
             <div className="mb-5">
@@ -224,6 +247,13 @@ export default function BoardList() {
           </main>
         </div>
       </div>
+      <ChatPopup
+  chatOpen={chatOpen}
+  selectedRoom={selectedRoom}
+  onCloseChatRoom={closeChatRoom}
+  variant="board"
+/>
     </div>
+    
   );
 }

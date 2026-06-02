@@ -15,10 +15,15 @@ function isImageFile(name = "") {
 }
 
 // ── 댓글 한 줄 컴포넌트 ───────────────────────────────────
-function ReplyItem({ reply, boardId, onUpdated, onDeleted }) {
+function ReplyItem({ reply, boardId, currentUserId, onUpdated, onDeleted }) {
     const [editing, setEditing]       = useState(false);
     const [editInput, setEditInput]   = useState(reply.content);
     const [loading, setLoading]       = useState(false);
+
+     const replyUserId = reply?.userId ?? reply?.userid;
+
+    const isReplyOwner =
+        Number(replyUserId) === Number(currentUserId) || reply.owner || reply.isOwner;
 
     const handleUpdate = async () => {
         const content = editInput.trim();
@@ -57,7 +62,7 @@ function ReplyItem({ reply, boardId, onUpdated, onDeleted }) {
                         <span className="text-xs text-gray-400">{formatDateTime(reply.createdAt)}</span>
                     </div>
                     {/* 본인 댓글만 수정/삭제 버튼 표시 */}
-                    {reply.isOwner && !editing && (
+                   {isReplyOwner && !editing && (
                         <div className="flex gap-1.5">
                             <button onClick={() => { setEditing(true); setEditInput(reply.content); }}
                                 className="text-xs text-gray-400 hover:text-[#2F6F42] border-0 bg-transparent cursor-pointer transition-colors">
@@ -103,7 +108,13 @@ function ReplyItem({ reply, boardId, onUpdated, onDeleted }) {
 // ── BoardDetail 메인 ───────────────────────────────────────
 export default function BoardDetail() {
     const { boardId } = useParams();
-    const {isLoggedIn} = useAuth();
+    const { isLoggedIn, user } = useAuth();
+
+const currentUserId = user?.userId;
+
+const getUserId = (item) => {
+    return item?.userId ?? item?.userid;
+};
 
     const [board, setBoard]               = useState(null);
     const [liked, setLiked]               = useState(false);
@@ -198,7 +209,8 @@ export default function BoardDetail() {
             <p className="text-gray-400 text-sm">로딩 중...</p>
         </div>
     );
-
+const isBoardOwner =
+    Number(getUserId(board)) === Number(currentUserId) || board.owner || board.isOwner;
     return (
         <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
             <div className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
@@ -231,7 +243,7 @@ export default function BoardDetail() {
                                 <span>{formatDateTime(board.createdAt)}</span>
                                 <span className="flex items-center gap-1">👁 {board.cnt}</span>
                             </div>
-                            {isLoggedIn && board.isOwner && (
+                            {isLoggedIn && isBoardOwner && (
                                 <div className="flex gap-2">
                                     <button onClick={deleteBoard}
                                         className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-lg border-0 cursor-pointer transition-colors">
@@ -329,13 +341,14 @@ export default function BoardDetail() {
                                     </p>
                                 ) : (
                                     replies.content.map((reply) => (
-                                        <ReplyItem
-                                            key={reply.replyId}
-                                            reply={reply}
-                                            boardId={boardId}
-                                            onUpdated={handleReplyUpdated}
-                                            onDeleted={handleReplyDeleted}
-                                        />
+                                       <ReplyItem
+    key={reply.replyId}
+    reply={reply}
+    boardId={boardId}
+    currentUserId={currentUserId}
+    onUpdated={handleReplyUpdated}
+    onDeleted={handleReplyDeleted}
+/>
                                     ))
                                 )}
                             </div>

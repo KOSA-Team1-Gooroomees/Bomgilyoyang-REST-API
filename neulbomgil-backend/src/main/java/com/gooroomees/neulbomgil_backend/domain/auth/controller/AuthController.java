@@ -48,6 +48,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(UserResponse.builder()
+                .userId(user.getUserId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .role(user.getRole().name())
@@ -113,23 +114,47 @@ public class AuthController {
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            @RequestHeader("Authorization") String authHeader,
-            @CookieValue(name = "refresh_token") String refreshToken,
-            HttpServletResponse response) {
-        String accessToken = authHeader.substring(7);
+            @CookieValue(name = "refreshToken", required = false) String normalRefreshToken,
+            @CookieValue(name = "refresh_token", required = false) String kakaoRefreshToken,
+            HttpServletResponse response
+    ) {
+        String refreshToken = normalRefreshToken != null
+                ? normalRefreshToken
+                : kakaoRefreshToken;
 
-        authService.logout(refreshToken);
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            authService.logout(refreshToken);
+        }
 
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
+        ResponseCookie normalRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        ResponseCookie kakaoRefreshCookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/api/auth/refresh")
-                .maxAge(0) // 쿠키 즉시 만료
+                .maxAge(0)
+                .sameSite("Strict")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
 
-        return ResponseEntity.ok().build();
+        response.addHeader(HttpHeaders.SET_COOKIE, normalRefreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, kakaoRefreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+
+        return ResponseEntity.ok("로그아웃 완료");
     }
 
     @Operation(summary = "액세스 토큰 재발급")

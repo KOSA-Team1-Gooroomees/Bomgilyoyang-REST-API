@@ -12,12 +12,13 @@ const Home = () => {
             params.append('email', email);
             params.append('password', password);
 
-            await api.post('/api/auth/login', params, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                withCredentials: true
-            });
+           const response = await api.post('/api/auth/login', params, {
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+});
+
+localStorage.setItem('accessToken', response.data.accessToken);
 
             alert('로그인 성공!');
 
