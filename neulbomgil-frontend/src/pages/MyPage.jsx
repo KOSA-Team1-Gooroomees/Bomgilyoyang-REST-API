@@ -105,7 +105,7 @@ export default function MyPage() {
                         </div>
                     </div>
                     {/* 설정 정보 수정 페이지 이동 */}
-                    <Link to="/my-page-change" className="text-gray-500 hover:text-gray-700 transition-colors">
+                    <Link to="/mypagechange" className="text-gray-500 hover:text-gray-700 transition-colors">
                         내 정보 수정
                     </Link>
                 </div>
