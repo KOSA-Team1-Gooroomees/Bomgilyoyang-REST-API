@@ -7,6 +7,7 @@ import com.gooroomees.neulbomgil_backend.domain.auth.repository.AuthTokenReposit
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,6 +22,9 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final AuthTokenRepository authTokenRepository;
     private final UserAuthService userAuthService;
+
+    @Value("192.168.4.34")
+    private String serverUrl;
 
     public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -38,7 +42,7 @@ public class EmailService {
 
         authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.SIGNUP));
 
-        String authLink = "http://localhost:8088/api/auth/verify?token=" + authToken;
+        String authLink = serverUrl + "/api/auth/verify?token=" + authToken;
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -71,7 +75,7 @@ public class EmailService {
         authTokenRepository.save(new AuthToken(userId, authToken, LocalDateTime.now().plusMinutes(5L), TokenType.PASSWORD_RESET));
 
         // 프론트엔드 주소로 보내는 것이 일반적이나, 현재는 백엔드 또는 로컬 확인용으로 설정
-        String resetLink = "http://localhost:8088/api/auth/verify/password?token=" + authToken;
+        String resetLink = serverUrl + "/api/auth/verify/password?token=" + authToken;
 
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
