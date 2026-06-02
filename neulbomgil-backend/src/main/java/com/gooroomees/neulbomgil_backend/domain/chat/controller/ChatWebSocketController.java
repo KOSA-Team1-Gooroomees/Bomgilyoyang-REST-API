@@ -51,12 +51,9 @@ public class ChatWebSocketController {
             @DestinationVariable Long roomId, @Header("userId") Long userId,/*@AuthenticationPrincipal UserAuth userAuth,*/
             ChatRequestDto requestDto
     ) {
-        log.info("WebSocket 메시지 수신 roomId={}", roomId);
-        log.info("WebSocket 메시지 수신 userId={}", userId);
-        log.info("WebSocket 메시지 수신 message={}", requestDto.message());
 
         ChatResponseDto responseDto = chatService.saveMessage(roomId, userId, requestDto);
-        log.info("저장된 메시지 chatId={}", responseDto.chatId());
+
         //클라이언트 SUBSCRIBE 주소:
         // /sub/chatRooms/{roomId}
         messagingTemplate.convertAndSend(

@@ -47,10 +47,11 @@ public class AuthService {
     @Value("${kakao.auth.client_secret_key}")
     private String clientSecretKey;
 
-
     @Transactional
     public String register(RegisterRequest registerRequest) {
-        // 이메일 중복되면 처리안되도록
+        if (userAuthRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
 
         UserAuth user = UserAuth.builder()
                 .email(registerRequest.getEmail())
@@ -63,6 +64,10 @@ public class AuthService {
         emailService.sendAuthLink(user.getUserId());
 
         return "User registered. Please check your email for verification.";
+    }
+
+    public boolean isEmailDuplicated(String email) {
+        return userAuthRepository.existsByEmail(email);
     }
 
     @Transactional
@@ -174,11 +179,29 @@ public class AuthService {
 
         UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
         if (user == null) {
-            return null;
+            String nickname = null;
+            if (kakaoProfile.getKakao_account() != null && kakaoProfile.getKakao_account().getProfile() != null) {
+                nickname = kakaoProfile.getKakao_account().getProfile().getNickname();
+            }
+            if (nickname == null && kakaoProfile.getProperties() != null) {
+                nickname = kakaoProfile.getProperties().getNickname();
+            }
+            if (nickname == null) {
+                nickname = "Kakao User";
+            }
+            user = UserAuth.builder()
+                    .email(kakaoProfile.getKakao_account().getEmail())
+                    .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                    .name(nickname)
+                    .role(Role.USER)
+                    .status(Status.ACTIVE)
+                    .build();
+            userAuthRepository.save(user);
         }
 
         if (!user.getStatus().equals(Status.ACTIVE)) {
-            throw new RuntimeException("Account is not active");
+            // throw new RuntimeException("Account is not active");
+            return null;
         }
 
         String accessToken = jwtProvider.generateAccessToken(user);
@@ -262,6 +285,27 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public void updateUserInfo(UserAuth user, UpdateUserRequest request) {
+        UserAuth userAuth = userAuthRepository.findById(user.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        userAuth.updateName(request.getName());
+        userAuthRepository.save(userAuth);
+    }
+
+    @Transactional
+    public boolean withdraw(UserAuth user, WithdrawRequest request) {
+        UserAuth userAuth = userAuthRepository.findById(user.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        if (!passwordEncoder.matches(request.getPassword(), userAuth.getPassword())) {
+            return false;
+        }
+        userAuth.deleteUser();
+        userAuthRepository.save(userAuth);
+        return true;
+    }
+
 
     private KakaoTokenResponse requestToken(String accessCode) {
         RestTemplate restTemplate = new RestTemplate();
@@ -272,7 +316,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoKey);
-        params.add("redirect_url", "http://localhost:8088/api/auth/kakao");
+        params.add("redirect_uri", "http://localhost:8088/api/auth/kakao");
         params.add("code", accessCode);
         params.add("client_secret", clientSecretKey);
 

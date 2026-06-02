@@ -26,8 +26,8 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // 프론트 주소
-                    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedOrigins(java.util.List.of("http://localhost:5173", "http://192.168.4.34:5173")); // 프론트 주소
+                    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(java.util.List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> req
-                        //websocket연결
+                        .requestMatchers("/api/boards/{boardId}").authenticated()  // 상세 조회는 인증 필요
                         .requestMatchers("/**").permitAll()
                         .requestMatchers("/api/favorites/**").authenticated()
                         .requestMatchers("/api/map/**").permitAll()
@@ -51,7 +51,6 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        //.requestMatchers()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)

@@ -7,15 +7,20 @@ import com.gooroomees.neulbomgil_backend.domain.board.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-
-import static com.gooroomees.neulbomgil_backend.domain.auth.entity.QUserAuth.userAuth;
 
 @Tag(name = "게시판", description = "게시판 관련 API")
 @RestController
@@ -51,7 +56,7 @@ public class BoardController {
         return ResponseEntity.ok(boardService.getBoardsReplyCount(page));
     }
 
-    // 단건 조회 (userAuth nullable - 비로그인도 조회 가능)
+    // 단건 조회
     @Operation(summary = "게시글 단건 조회", description = "조회 시 조회수 +1. 로그인 시 좋아요 여부 포함.")
     @GetMapping("/{boardId}")
     public ResponseEntity<BoardResponseDTO> getOneBoard(
@@ -70,28 +75,28 @@ public class BoardController {
         return ResponseEntity.ok(boardService.searchBoard(keyword, page));
     }
 
-    // 글 작성
+    // 글 작성 (파일 업로드 포함)
     @Operation(summary = "게시글 작성",
             description = "로그인한 사용자가 새 게시글을 작성합니다. JWT 토큰이 필요합니다.")
-    @PostMapping("/inserts")
+    @PostMapping(value = "/inserts", consumes = "multipart/form-data")
     public ResponseEntity<Void> createBoard(
-            @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth)
-    {
-        boardService.createBoard(dto, userAuth);
+            @RequestPart("data") BoardRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        boardService.createBoard(dto, userAuth, files);
         return ResponseEntity.ok().build();
     }
 
-    // 글 수정
+    // 글 수정 (파일 업로드 포함)
     @Operation(summary = "게시글 수정",
             description = "본인이 작성한 게시글을 수정합니다. 작성자 본인만 수정 가능합니다.")
-    @PutMapping("/{boardId}")
+    @PutMapping(value = "/{boardId}", consumes = "multipart/form-data")
     public ResponseEntity<Void> updateBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequestDTO dto,
-            @AuthenticationPrincipal UserAuth userAuth)
-    {
-        boardService.updateBoard(dto, boardId, userAuth);
+            @RequestPart("data") BoardRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        boardService.updateBoard(dto, boardId, userAuth, files);
         return ResponseEntity.ok().build();
     }
 
@@ -101,8 +106,7 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<Void> deleteBoard(
             @PathVariable Long boardId,
-            @AuthenticationPrincipal UserAuth userAuth)
-    {
+            @AuthenticationPrincipal UserAuth userAuth) {
         boardService.deleteBoard(boardId, userAuth);
         return ResponseEntity.noContent().build();
     }
@@ -114,5 +118,47 @@ public class BoardController {
             @AuthenticationPrincipal UserAuth userAuth) {
         boolean liked = boardService.toggleLike(boardId, userAuth);
         return ResponseEntity.ok(Map.of("liked", liked));
+    }
+
+    @Operation(summary = "내가 작성한 게시글 조회", description = "로그인한 사용자가 작성한 게시글 목록을 최신순으로 조회합니다. JWT 토큰 필요.")
+    @GetMapping("/me")
+    public ResponseEntity<Page<BoardResponseDTO>> getMyBoards(
+            @RequestParam(defaultValue = "0") int page,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        return ResponseEntity.ok(boardService.getMyBoards(userAuth, page));
+    }
+
+    // 파일 다운로드
+    @Operation(summary = "첨부파일 다운로드")
+    @GetMapping("/files/{fileId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws Exception {
+        Resource resource = boardService.downloadFile(fileId);
+        String originalName = boardService.getOriginalFileName(fileId);
+        String encodedName = URLEncoder.encode(originalName, StandardCharsets.UTF_8)
+                .replace("+", "%20");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename*=UTF-8''" + encodedName)
+                .body(resource);
+    }
+    // 수정 중 기존 파일 개별 삭제
+    @Operation(summary = "첨부파일 삭제")
+    @DeleteMapping("/files/{fileId}")
+    public ResponseEntity<Void> deleteFile(
+            @PathVariable Long fileId,
+            @AuthenticationPrincipal UserAuth userAuth) {
+        boardService.deleteFile(fileId, userAuth);
+        return ResponseEntity.noContent().build();
+    }
+//이미지
+    @GetMapping("/files/{fileId}/preview")
+    public ResponseEntity<Resource> previewFile(@PathVariable Long fileId) throws Exception {
+        Resource resource = boardService.downloadFile(fileId);
+        String filePath = boardService.getFilePath(fileId);
+        String contentType = Files.probeContentType(Paths.get(filePath));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE,
+                        contentType != null ? contentType : "application/octet-stream")
+                .body(resource);
     }
 }

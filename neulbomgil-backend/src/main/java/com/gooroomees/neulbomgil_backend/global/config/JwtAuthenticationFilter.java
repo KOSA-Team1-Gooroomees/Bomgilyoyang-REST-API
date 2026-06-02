@@ -41,23 +41,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String userEmail;
 
         try {
+            // 액세스 토큰이 존재하고 인증 정보가 없는 경우만 로직 수행
             if (accessToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                // 토큰이 만료되었다면 이 시점에서 자동으로 ExpiredJwtException이 발생하여 catch 블록으로 이동함
                 userEmail = jwtProvider.extractUsername(accessToken);
                 UserAuth user = (UserAuth) this.userDetailsService.loadUserByUsername(userEmail);
+
                 if (jwtProvider.isTokenValid(accessToken, user)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        user.getAuthorities()
+                            user,
+                            null,
+                            user.getAuthorities()
                     );
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+                // 토큰이 유효하지 않을 경우(만료가 아닌 서명 오류 등)는 권한이 부여되지 않은 상태로 다음 필터로 진행됨
             }
         } catch (ExpiredJwtException e) {
-            // 액세스 토큰이 만료된 경우 리프레쉬 토큰 검증
+            // 액세스 토큰이 만료되어 파싱 과정에서 예외가 발생한 경우 리프레쉬 토큰 검증 로직 실행
             if (refreshToken != null) {
                 try {
                     if (jwtProvider.isTokenValid(refreshToken)) {
@@ -88,7 +93,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         }
                     }
                 } catch (ExpiredJwtException ex) {
-                    // 리프레쉬 토큰까지 만료된 경우 재로그인 필요 (필터 통과 후 Security 설정에 의해 차단됨)
+                    // 리프레쉬 토큰까지 만료된 경우 아무 처리도 하지 않음
+                    // Security Context에 인증 정보가 없으므로 Security 설정에 의해 접근 차단됨
+                } catch (Exception ex) {
+                    // 기타 리프레시 토큰 검증 중 발생한 예외 처리
                 }
             }
         }

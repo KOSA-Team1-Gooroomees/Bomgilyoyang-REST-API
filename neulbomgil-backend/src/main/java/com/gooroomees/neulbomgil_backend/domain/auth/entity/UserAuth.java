@@ -26,7 +26,7 @@ public class UserAuth implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -41,6 +41,11 @@ public class UserAuth implements UserDetails {
 
     public void activate() {
         this.status = Status.ACTIVE;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void updatePassword(String password) {
