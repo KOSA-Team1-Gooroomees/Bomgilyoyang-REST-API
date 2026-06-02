@@ -200,7 +200,8 @@ public class AuthService {
         }
 
         if (!user.getStatus().equals(Status.ACTIVE)) {
-            throw new RuntimeException("Account is not active");
+            // throw new RuntimeException("Account is not active");
+            return null;
         }
 
         String accessToken = jwtProvider.generateAccessToken(user);
