@@ -63,8 +63,8 @@ public class AuthController {
         // 액세스 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
                 .httpOnly(true)
-                .secure(true) // HTTPS 환경 권장
-                .path("/") // 갱신 경로에서만 쿠키 전송
+                .secure(true)
+                .path("/")
                 .maxAge(Duration.ofMinutes(30))
                 .sameSite("Strict")
                 .build();
@@ -72,7 +72,7 @@ public class AuthController {
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtTokenResponse.getRefreshToken())
                 .httpOnly(true)
-                .secure(true) // HTTPS 환경 권장
+                .secure(true)
                 .path("/") // 갱신 경로에서만 쿠키 전송
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")
@@ -114,46 +114,30 @@ public class AuthController {
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            @CookieValue(name = "refreshToken", required = false) String normalRefreshToken,
-            @CookieValue(name = "refresh_token", required = false) String kakaoRefreshToken,
+            @CookieValue(name = "accessToken", required = false) String accessToken,
+            @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response
     ) {
-        String refreshToken = normalRefreshToken != null
-                ? normalRefreshToken
-                : kakaoRefreshToken;
-
         if (refreshToken != null && !refreshToken.isBlank()) {
             authService.logout(refreshToken);
         }
 
-        ResponseCookie normalRefreshCookie = ResponseCookie.from("refreshToken", "")
+        ResponseCookie removeRefreshToken = ResponseCookie.from("refreshToken", null)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
                 .build();
 
-        ResponseCookie kakaoRefreshCookie = ResponseCookie.from("refresh_token", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/api/auth/refresh")
-                .maxAge(0)
-                .sameSite("Strict")
-                .build();
-
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
+        ResponseCookie removeAccessToken = ResponseCookie.from("accessToken", null)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, normalRefreshCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, kakaoRefreshCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-
+        response.addHeader(HttpHeaders.SET_COOKIE, removeRefreshToken.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, removeAccessToken.toString());
         return ResponseEntity.ok("로그아웃 완료");
     }
 
@@ -204,15 +188,25 @@ public class AuthController {
             return ResponseEntity.ok(new LoginResponse(null));
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwtTokenResponse.getRefreshToken())
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
                 .httpOnly(true)
                 .secure(true) // HTTPS 환경 권장
-                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
-                .maxAge(604800000)
+                .path("/")
+                .maxAge(Duration.ofMinutes(30))
                 .sameSite("Strict")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        // 리프레시 토큰을 HttpOnly 쿠키에 저장
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtTokenResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경 권장
+                .path("/api/auth/refresh") // 갱신 경로에서만 쿠키 전송
+                .maxAge(Duration.ofDays(7))
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
         response.sendRedirect("http://localhost:5173/");
 

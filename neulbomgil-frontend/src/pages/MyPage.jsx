@@ -1,4 +1,4 @@
-import "../styles/mypage-theme.css";
+import "../css/mypage-theme.css";
 import { useState, useEffect } from "react";
 import api from "../api/axios.js";
 import { Link } from "react-router-dom";
@@ -127,9 +127,6 @@ export default function MyPage() {
                             ) : (
                                 favoriteFacilities.map((fav) => (
                                     <div key={fav.id} className="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 relative shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="w-20 h-20 bg-blue-50 rounded-xl flex items-center justify-center text-blue-400 flex-shrink-0">
-                                            <i className="fa-solid fa-house-medical text-3xl"></i>
-                                        </div>
 
                                         <div className="flex-1 py-1">
                                             <div className="flex justify-between items-start mb-1">
@@ -146,12 +143,12 @@ export default function MyPage() {
                                             </div>
 
                                             <div className="text-xs text-gray-500 space-y-1.5">
-                                                <p className="flex items-center gap-1.5">
-                                                    <i className="fa-solid fa-location-dot text-red-500 w-3"></i>
+                                                <p className="flex items-left gap-1.5">
+                                                    {/*<i className="fa-solid fa-location-dot text-red-500 w-3"></i>*/}
                                                     <span>{fav.facility?.newAddress || fav.facility?.oldAddress || "주소 정보 없음"}</span>
                                                 </p>
-                                                <p className="flex items-center gap-1.5">
-                                                    <i className="fa-solid fa-phone text-gray-400 w-3"></i>
+                                                <p className="flex items-left gap-1.5">
+                                                    {/*<i className="fa-solid fa-phone text-gray-400 w-3"></i>*/}
                                                     <span>{fav.facility?.facilityTel || "전화번호 정보 없음"}</span>
                                                 </p>
                                             </div>
@@ -182,9 +179,6 @@ export default function MyPage() {
                             ) : (
                                 myPosts.map((post) => (
                                     <div key={post.boardId} className="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 relative shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="w-20 h-20 bg-green-50 rounded-xl flex items-center justify-center text-green-500 flex-shrink-0">
-                                            <i className="fa-regular fa-file-lines text-3xl"></i>
-                                        </div>
 
                                         <div className="flex-1 py-1">
                                             <div className="flex justify-between items-start mb-1">
