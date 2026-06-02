@@ -17,6 +17,9 @@ import Chat from "./pages/Chat.jsx";
 import Login from "./pages/login.jsx";
 import Register from "./pages/Register.jsx";
 import MyPageChange from "./pages/MyPageChange.jsx";
+import CareGrade from "./pages/CareGrade.jsx";
+import CareGradeTest from "./pages/CareGradeTest.jsx";
+import ErrorPage from "./pages/ErrorPage.jsx";
 
 function AppContent() {
   const navigate = useNavigate();
@@ -50,13 +53,15 @@ const handleLogout = async () => {
       <Route path="/myPage-change" element={<MyPageChange />} />
 
       <Route path="/admin" element={<Admin />} />
+<Route path="/caregrade" element={<CareGrade />} />
+<Route path="/caregrade/test" element={<CareGradeTest />} />
 
       <Route path="/chatrooms/:roomId/message" element={<Chat />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Register />} />
 
-      <Route path="*" element={<div>페이지를 찾을 수 없습니다.</div>} />
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 
