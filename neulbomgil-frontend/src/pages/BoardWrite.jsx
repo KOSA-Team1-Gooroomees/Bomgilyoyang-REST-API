@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
 import { BoardSidebar } from "./BoardList";
 import { useAuth } from "../hooks/auth/useAuth";
+import ChatPopup from "../components/admin/ChatPopup.jsx";
+import { startChatRoom } from "../services/chat/chatService.js";
 
 function formatSize(b) {
   if (b < 1024) return b + "B";
@@ -69,6 +71,25 @@ export default function BoardWrite() {
   const [content, setContent]     = useState("");
   const [files, setFiles]         = useState([]);
   const [submitting, setSubmitting] = useState(false);
+const [chatOpen, setChatOpen] = useState(false);
+const [selectedRoom, setSelectedRoom] = useState(null);
+
+const handleOpenChat = async () => {
+  try {
+    const response = await startChatRoom();
+
+    setSelectedRoom(response.data);
+    setChatOpen(true);
+  } catch (error) {
+    console.error("채팅방 시작 실패:", error);
+    alert("채팅방을 시작할 수 없습니다.");
+  }
+};
+
+const closeChatRoom = () => {
+  setChatOpen(false);
+  setSelectedRoom(null);
+};
 
   const addFiles = useCallback((incoming) => {
     setFiles((prev) => {
@@ -110,7 +131,7 @@ export default function BoardWrite() {
     <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
       <div className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
         <div className="grid gap-5" style={{ gridTemplateColumns: "220px 1fr" }}>
-          <BoardSidebar onChatClick={() => {}} />
+          <BoardSidebar onChatClick={handleOpenChat} />
 
           <main className="bg-white rounded-xl p-8 shadow-sm">
             <div className="flex justify-between items-start mb-7">
@@ -162,6 +183,12 @@ export default function BoardWrite() {
           </main>
         </div>
       </div>
+         <ChatPopup
+        chatOpen={chatOpen}
+        selectedRoom={selectedRoom}
+        onCloseChatRoom={closeChatRoom}
+        variant="board"
+      />
     </div>
   );
 }

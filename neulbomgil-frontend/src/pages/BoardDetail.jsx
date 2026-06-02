@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { BoardAPI, ReplyAPI } from "../services/board/boardService";
 import { BoardSidebar, Pagination } from "./BoardList";
 import { useAuth } from "../hooks/auth/useAuth";
+import ChatPopup from "../components/admin/ChatPopup.jsx";
+import { startChatRoom } from "../services/chat/chatService.js";
 
 function formatDateTime(str) {
     if (!str) return "";
@@ -123,7 +125,25 @@ const getUserId = (item) => {
     const [replyPage, setReplyPage]       = useState(0);
     const [replyInput, setReplyInput]     = useState("");
     const [replyLoading, setReplyLoading] = useState(false);
+const [chatOpen, setChatOpen] = useState(false);
+const [selectedRoom, setSelectedRoom] = useState(null);
 
+const handleOpenChat = async () => {
+    try {
+        const response = await startChatRoom();
+
+        setSelectedRoom(response.data);
+        setChatOpen(true);
+    } catch (error) {
+        console.error("채팅방 시작 실패:", error);
+        alert("채팅방을 시작할 수 없습니다.");
+    }
+};
+
+const closeChatRoom = () => {
+    setChatOpen(false);
+    setSelectedRoom(null);
+};
     const requireLogin = () => {
         alert("로그인이 필요한 서비스입니다.");
         window.location.href = "/login";
@@ -215,7 +235,7 @@ const isBoardOwner =
         <div className="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
             <div className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
                 <div className="grid gap-5" style={{ gridTemplateColumns: "220px 1fr" }}>
-                    <BoardSidebar onChatClick={() => {}} />
+                    <BoardSidebar onChatClick={handleOpenChat} />
 
                     <main className="bg-white rounded-xl p-8 shadow-sm flex flex-col gap-8">
 
@@ -358,7 +378,14 @@ const isBoardOwner =
                         </div>
                     </main>
                 </div>
-            </div>
+                       </div>
+
+            <ChatPopup
+                chatOpen={chatOpen}
+                selectedRoom={selectedRoom}
+                onCloseChatRoom={closeChatRoom}
+                variant="board"
+            />
         </div>
     );
 }

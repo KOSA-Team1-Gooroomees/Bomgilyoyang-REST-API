@@ -27,10 +27,25 @@ export const AuthProvider = ({ children }) => {
         checkAuthStatus();
     }, []);
 
-     const login = (userData) => {
+     const login = async () => {
+    try {
+        const response = await api.get("/api/auth/me");
+
+        console.log("로그인 후 사용자 정보:", response.data);
+
         setIsLoggedIn(true);
-        setUser(userData ?? null);
-    };
+        setUser(response.data);
+
+        return response.data;
+    } catch (error) {
+        console.error("로그인 후 사용자 정보 조회 실패:", error);
+
+        setIsLoggedIn(false);
+        setUser(null);
+
+        throw error;
+    }
+};
 const logout = async () => {
     try {
         await api.post("/api/auth/logout");

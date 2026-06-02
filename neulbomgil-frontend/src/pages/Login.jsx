@@ -35,8 +35,13 @@ export default function Login() {
                     }
                 }
             );
-            login();
-            navigate("/");
+           const userData = await login();
+
+if (userData.role === "ADMIN") {
+    navigate("/admin");
+} else {
+    navigate("/");
+}
         } catch (err) {
             console.error("로그인 실패:", err);
             const errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
