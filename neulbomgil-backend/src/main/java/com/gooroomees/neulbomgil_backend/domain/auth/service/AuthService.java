@@ -47,9 +47,6 @@ public class AuthService {
     @Value("${kakao.auth.client_secret_key}")
     private String clientSecretKey;
 
-    @Value("192.168.4.34")
-    private String serverUrl;
-
     @Transactional
     public String register(RegisterRequest registerRequest) {
         if (userAuthRepository.existsByEmail(registerRequest.getEmail())) {
@@ -301,7 +298,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoKey);
-        params.add("redirect_url", "http://" + serverUrl + ":8088/api/auth/kakao");
+        params.add("redirect_url", "http://localhost:8088/api/auth/kakao");
         params.add("code", accessCode);
         params.add("client_secret", clientSecretKey);
 
