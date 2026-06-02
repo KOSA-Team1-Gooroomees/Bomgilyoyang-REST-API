@@ -1,4 +1,4 @@
-import "../styles/login-theme.css";
+import "../css/login-theme.css";
 import api from "../api/axios";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -26,7 +26,7 @@ export default function Login() {
         params.append('password', password);
 
         try {
-            const response = await api.post(
+            await api.post(
                 "/api/auth/login",
                 params,
                 {
@@ -51,10 +51,10 @@ export default function Login() {
             <div className="min-h-screen text-gray-800 flex flex-col">
                 <div className="flex-1 flex items-center justify-center relative overflow-hidden px-4 py-10">
                     <div className="relative z-10 w-full max-w-[400px] px-5 -mt-12.5 ">
-                        <div className="rounded-[20px] shadow-lg p-6 relative z-10 mt-10 bg-[url('/images/login-background.png')] bg-cover bg-bottom bg-white">
+                        <div className="rounded-[20px] shadow-lg p-6 relative z-10 mt-10 bg-[url('../assets/images/login-background.png')] bg-cover bg-bottom bg-white">
                             
                             <div className="text-center relative mb-6 ">
-                                <img src="/images/characters/rumi-left.png" alt="봄길요양 캐릭터"
+                                <img src="/src/assets/images/characters/rumi-left.png" alt="봄길요양 캐릭터"
                                     className="absolute -top-6 -right-10 w-28 h-auto z-20" />
                                 <h1 className="mt-10 text-3xl font-bold text-[#1F3D2D] mb-2 tracking-tight">
                                     로그인
