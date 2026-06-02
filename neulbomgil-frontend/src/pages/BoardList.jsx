@@ -56,7 +56,7 @@ export function BoardSidebar({ onChatClick }) {
           시설 이용 정보와<br />다양한 소식을<br />함께 나눠요.
         </p>
         <img
-          src="/images/characters/rumi-search.png"
+          src="src/assets/images/characters/rumi-search.png"
           alt="마스코트"
           className="absolute bottom-0 right-2 w-20"
           onError={(e) => (e.target.style.display = "none")}
