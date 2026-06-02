@@ -1,4 +1,4 @@
-import "../styles/register-theme.css";
+import "../css/register-theme.css";
 import { useState } from "react";
 import api from "../api/axios.js";
 import { useNavigate, Link } from "react-router-dom";
@@ -164,8 +164,10 @@ export default function Register() {
                     <form id="signupForm" onSubmit={handleRegister}>
                         <div className="relative mb-3">
                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
+                                          d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
                                 </svg>
                             </div>
                             <input type="text" name="name" placeholder="이름을 입력하세요"
@@ -178,7 +180,8 @@ export default function Register() {
                         <div className="relative mb-3">
                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                 <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002 2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
+                                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
                             <input type="email" name="email" id="email" placeholder="이메일을 입력하세요"

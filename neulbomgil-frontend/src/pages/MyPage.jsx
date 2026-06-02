@@ -1,4 +1,4 @@
-import "../styles/mypage-theme.css";
+import "../css/mypage-theme.css";
 import { useState, useEffect } from "react";
 import api from "../api/axios.js";
 import { Link } from "react-router-dom";
