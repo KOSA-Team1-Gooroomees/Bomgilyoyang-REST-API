@@ -42,6 +42,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  background: rgba(0, 0, 0, 0.25); /* 숫자 올리면 더 어두워짐 */
 }
 
 /* Hero content – 기본은 숨김, .visible 추가 시 애니메이션 */
@@ -57,12 +58,12 @@
 .heroBadge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
   background: rgba(255,255,255,0.22);
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 3px solid rgba(255,255,255,0.4);
   border-radius: 100px;
   padding: 8px 20px;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 500;
   color: #fff;
   margin-bottom: 28px;
@@ -93,12 +94,13 @@
 }
 
 .heroSub {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 25px;
+  font-weight: 700;
   color: rgba(255,255,255,0.88);
   letter-spacing: 1.5px;
   margin-bottom: 48px;
   line-height: 1.8;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.30);
 }
 
 
