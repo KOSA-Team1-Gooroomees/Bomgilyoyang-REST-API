@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -28,6 +29,9 @@ public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
     private final UserAuthService userAuthService;
+
+    @Value("192.168.4.34")
+    private String serverUrl;
 
     @Operation(summary = "회원 가입")
     @PostMapping("/signup")
@@ -208,7 +212,7 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
-        response.sendRedirect("http://localhost:5173/");
+        response.sendRedirect("http://" + serverUrl + ":5173/");
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }
