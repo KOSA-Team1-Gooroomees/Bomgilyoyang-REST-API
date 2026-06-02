@@ -14,7 +14,7 @@ const FacilitySearchList = ({ coords, facilities, setFacilities, onSelectFacilit
                 <input
                     type="text" value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    placeholder="시설명을 검색하세요"
+                    placeholder="지역명을 검색하세요"
                     className="w-full px-4 py-3 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 transition-all outline-none"
                 />
             </div>

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.time.Duration;
 
+@Slf4j
 @Tag(name = "인증 및 인가 관리", description = "회원 가입, 로그인, OAuth, 메일 인증용 API")
 @RestController
 @RequiredArgsConstructor
@@ -29,9 +31,6 @@ public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
     private final UserAuthService userAuthService;
-
-    @Value("192.168.4.34")
-    private String serverUrl;
 
     @Operation(summary = "회원 가입")
     @PostMapping("/signup")
@@ -188,8 +187,11 @@ public class AuthController {
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) throws IOException {
         JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
 
-        if (jwtTokenResponse == null)
+        if (jwtTokenResponse == null) {
+            response.sendRedirect("http://localhost:5173/");
             return ResponseEntity.ok(new LoginResponse(null));
+        }
+
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
@@ -212,7 +214,7 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtTokenResponse.getAccessToken());
-        response.sendRedirect("http://" + serverUrl + ":5173/");
+        response.sendRedirect("http://localhost:5173/");
 
         return ResponseEntity.ok(new LoginResponse(jwtTokenResponse.getAccessToken()));
     }

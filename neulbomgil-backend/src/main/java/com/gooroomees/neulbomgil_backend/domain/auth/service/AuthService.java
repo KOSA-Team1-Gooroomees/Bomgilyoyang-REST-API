@@ -47,9 +47,6 @@ public class AuthService {
     @Value("${kakao.auth.client_secret_key}")
     private String clientSecretKey;
 
-    @Value("192.168.4.34")
-    private String serverUrl;
-
     @Transactional
     public String register(RegisterRequest registerRequest) {
         if (userAuthRepository.existsByEmail(registerRequest.getEmail())) {
@@ -182,7 +179,24 @@ public class AuthService {
 
         UserAuth user = userAuthRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElse(null);
         if (user == null) {
-            return null;
+            String nickname = null;
+            if (kakaoProfile.getKakao_account() != null && kakaoProfile.getKakao_account().getProfile() != null) {
+                nickname = kakaoProfile.getKakao_account().getProfile().getNickname();
+            }
+            if (nickname == null && kakaoProfile.getProperties() != null) {
+                nickname = kakaoProfile.getProperties().getNickname();
+            }
+            if (nickname == null) {
+                nickname = "Kakao User";
+            }
+            user = UserAuth.builder()
+                    .email(kakaoProfile.getKakao_account().getEmail())
+                    .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                    .name(nickname)
+                    .role(Role.USER)
+                    .status(Status.ACTIVE)
+                    .build();
+            userAuthRepository.save(user);
         }
 
         if (!user.getStatus().equals(Status.ACTIVE)) {
@@ -301,7 +315,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoKey);
-        params.add("redirect_url", "http://" + serverUrl + ":8088/api/auth/kakao");
+        params.add("redirect_uri", "http://localhost:8088/api/auth/kakao");
         params.add("code", accessCode);
         params.add("client_secret", clientSecretKey);
 
