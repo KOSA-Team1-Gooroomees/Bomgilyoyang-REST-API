@@ -22,7 +22,7 @@ public interface ParkRepository extends JpaRepository<Park, Integer> {
 
     // 반경 3km 내 공원 개수와 면적 합계를 조회
     @Query(value = "SELECT COUNT(*) as count, SUM(p.area) as totalArea FROM park p " +
-            "WHERE ST_Distance_Sphere(point(p.longitude, p.latitude), point(:lon, :lat)) <= 3000",
+            "WHERE ST_Distance_Sphere(point(p.longitude, p.latitude), point(:lon, :lat)) <= 2000",
             nativeQuery = true)
     Map<String, Object> getParkStatsWithinRadius(@Param("lat") double lat, @Param("lon") double lon);
 }
