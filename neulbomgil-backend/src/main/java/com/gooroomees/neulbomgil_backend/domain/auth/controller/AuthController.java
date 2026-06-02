@@ -60,8 +60,11 @@ public class AuthController {
 
     @Operation(summary = "일반 로그인")
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@ModelAttribute LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> login(@ModelAttribute LoginRequest request, HttpServletResponse response) throws IOException {
         JwtTokenResponse jwtTokenResponse = authService.login(request);
+        if (jwtTokenResponse == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         // 액세스 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
@@ -186,12 +189,10 @@ public class AuthController {
     @GetMapping("/kakao")
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) throws IOException {
         JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
-
         if (jwtTokenResponse == null) {
-            response.sendRedirect("http://localhost:5173/");
-            return ResponseEntity.ok(new LoginResponse(null));
+            response.sendRedirect("http://localhost:5173/login");
+            return ResponseEntity.badRequest().build();
         }
-
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
