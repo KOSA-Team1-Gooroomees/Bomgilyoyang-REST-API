@@ -5,14 +5,20 @@ import api from "../../api/axios.js";
 export const AuthProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState(null);
 
-    useEffect(() => {
+     useEffect(() => {
         const checkAuthStatus = async () => {
             try {
-                await api.get("/api/auth/me");
+                const response = await api.get("/api/auth/me");
+
+                console.log("현재 로그인 사용자:", response.data);
+
                 setIsLoggedIn(true);
+                setUser(response.data);
             } catch (e) {
                 setIsLoggedIn(false);
+                setUser(null);
             } finally {
                 setIsLoading(false);
             }
@@ -21,8 +27,24 @@ export const AuthProvider = ({ children }) => {
         checkAuthStatus();
     }, []);
 
-    const login = () => setIsLoggedIn(true);
-    const logout = () => setIsLoggedIn(false);
+     const login = (userData) => {
+        setIsLoggedIn(true);
+        setUser(userData ?? null);
+    };
+const logout = async () => {
+    try {
+        await api.post("/api/auth/logout");
+    } catch (error) {
+        console.error("로그아웃 API 실패:", error);
+    } finally {
+        setIsLoggedIn(false);
+        setUser(null);
+    }
+};
+    // const logout = () => {
+    //     setIsLoggedIn(false);
+    //     setUser(null);
+    // };
 
     if (isLoading) {
         return (
@@ -33,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn,user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

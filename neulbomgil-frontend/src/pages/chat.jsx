@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState, useContext } from 'react';
+import { useParams, useSearchParams } from "react-router-dom";
 
 import {
     connectChatSocket,
@@ -12,6 +12,8 @@ import {
     getMessagesByRoomId
 } from '../services/chat/chatService.js';
 
+import { AuthContext } from '../context/auth/AuthContext.jsx';
+
 import rumiFace from '../assets/images/characters/rumi-face.png';
 
 import '../css/chat.css';
@@ -19,15 +21,26 @@ import '../css/chat.css';
 function Chat() {
     const { roomId } = useParams();
     const [searchParams] = useSearchParams();
+    const { user } = useContext(AuthContext);
 
-    // 임시 방식: iframe 주소에 userId를 같이 넘겨서 사용
-    const userId = searchParams.get('userId');
-    const partnerName = searchParams.get('partnerName') || '관리자';
+    const userId = user?.userId;
+    
+    const queryPartnerName = searchParams.get("partnerName");
+
+
+    const partnerName =
+    user?.role === "ADMIN"
+        ? queryPartnerName || "사용자"
+        : "관리자";
+
+
+
 
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
 
     const messageBoxRef = useRef(null);
+
 
     /**
      * 기존 메시지 목록 조회
@@ -42,14 +55,18 @@ function Chat() {
             alert('채팅 메시지를 불러오지 못했습니다.');
         }
     };
-
-    /**
+ /**
      * 메시지 전송
      */
     const handleSendMessage = () => {
         const message = inputMessage.trim();
 
         if (message === '') {
+            return;
+        }
+
+        if (!userId) {
+            alert('사용자 정보를 확인할 수 없습니다.');
             return;
         }
 
@@ -120,21 +137,25 @@ function Chat() {
      * 최초 로딩 + WebSocket 연결
      */
     useEffect(() => {
-        loadMessages();
+    if (!userId) {
+        return;
+    }
 
-        connectChatSocket(() => {
-            subscribeChatRoom(roomId, (message) => {
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    message
-                ]);
-            });
+    loadMessages();
+
+    connectChatSocket(() => {
+        subscribeChatRoom(roomId, (message) => {
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                message
+            ]);
         });
+    });
 
-        return () => {
-            disconnectChatSocket();
-        };
-    }, [roomId]);
+    return () => {
+        disconnectChatSocket();
+    };
+}, [roomId, userId]);
 
     /**
      * 메시지 추가될 때 스크롤 아래로 이동

@@ -52,10 +52,11 @@ function Admin() {
 
                 <section className="content-area">
                     <ChatPopup
-                        chatOpen={chatOpen}
-                        selectedRoom={selectedRoom}
-                        onCloseChatRoom={closeChatRoom}
-                    />
+  chatOpen={chatOpen}
+  selectedRoom={selectedRoom}
+  onCloseChatRoom={closeChatRoom}
+  variant="admin"
+/>
 
                     <div className="user-container">
                         <div className="user-header">

@@ -141,6 +141,7 @@ body {
 /* 오른쪽 영역 */
 
 .content-area {
+     position: relative;
     flex: 1;
 
     overflow-y: auto;
@@ -149,27 +150,34 @@ body {
 }
 
 /* 채팅 팝업 */
-
 .chat-popup {
-    /*채팅 팝업을 일반 레이아웃 흐름에서 빼는 거야.*/
-    position: absolute;
-    top: 0;
-    left: 300px;
     z-index: 50;
 
     display: none;
     flex-direction: column;
 
     width: 380px;
-    height: 100%;
 
     border-right: 1px solid #d1d5db;
-
     background-color: var(--color-popup);
-
     box-shadow: 0 0 20px rgba(0,0,0,0.15);
-}
 
+    overflow: hidden;
+}
+.chat-popup-admin {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    height: 100%;
+}
+.chat-popup-board {
+    position: fixed;
+    top: 58px;
+    left: 235px;
+
+    height: calc(100vh - 58px);
+}
 /*active 클래스가 붙었을 때만*/
 /*채팅 팝업 보여라*/
 .chat-popup.active {

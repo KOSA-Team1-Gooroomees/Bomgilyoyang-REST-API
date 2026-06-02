@@ -1762,14 +1762,14 @@
 
 @font-face {
     font-family: "Eulyoo1945";
-    src: url("../fonts/Eulyoo1945-Regular.ttf") format("truetype");
+    src: url("./assets/fonts/Eulyoo1945-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
     font-family: "Eulyoo1945";
-    src: url("../fonts/Eulyoo1945-SemiBold.ttf") format("truetype");
+    src: url("./assets/fonts/Eulyoo1945-SemiBold.ttf") format("truetype");
     font-weight: 600;
     font-style: normal;
 }

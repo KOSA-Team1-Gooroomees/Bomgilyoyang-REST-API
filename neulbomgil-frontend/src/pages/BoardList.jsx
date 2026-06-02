@@ -247,11 +247,12 @@ const closeChatRoom = () => {
           </main>
         </div>
       </div>
-       <ChatPopup
-        chatOpen={chatOpen}
-        selectedRoom={selectedRoom}
-        onCloseChatRoom={closeChatRoom}
-      />
+      <ChatPopup
+  chatOpen={chatOpen}
+  selectedRoom={selectedRoom}
+  onCloseChatRoom={closeChatRoom}
+  variant="board"
+/>
     </div>
     
   );
