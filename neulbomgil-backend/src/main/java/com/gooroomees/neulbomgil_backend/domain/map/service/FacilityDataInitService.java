@@ -150,11 +150,12 @@ public class FacilityDataInitService {
     private Integer calculateFacilityScore(double lat, double lon) {
         Map<String, Object> stats = parkRepository.getParkStatsWithinRadius(lat, lon);
         long count = ((Number) stats.getOrDefault("count", 0)).longValue();
+        if (count == 0) {
+            return 0;
+        }
         double totalArea = stats.get("totalArea") != null ? ((Number) stats.get("totalArea")).doubleValue() : 0.0;
-
         double countScore = Math.min(count / 10.0, 1.0) * 2.5;
         double areaScore = Math.min(totalArea / 100000.0, 1.0) * 2.5;
-
         return Math.max((int) Math.round(countScore + areaScore), 1);
     }
 }
