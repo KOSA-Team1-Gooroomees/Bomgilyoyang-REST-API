@@ -187,8 +187,11 @@ public class AuthController {
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestParam("code") String accessCode, HttpServletResponse response) throws IOException {
         JwtTokenResponse jwtTokenResponse = authService.kakaoOAuthLogin(accessCode, response);
 
-        if (jwtTokenResponse == null)
+        if (jwtTokenResponse == null) {
+            response.sendRedirect("http://localhost:5173/");
             return ResponseEntity.ok(new LoginResponse(null));
+        }
+
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenResponse.getAccessToken())
