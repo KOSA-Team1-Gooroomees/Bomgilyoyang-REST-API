@@ -1,4 +1,4 @@
-# 봄길요양(Bomgilyoyang-Spring-MVC)
+# 봄길요양(Bomgilyoyang-REST-API)
 
 > "늘 봄날 같은 산책을 위한 요양시설 선택 지도 서비스”
 
